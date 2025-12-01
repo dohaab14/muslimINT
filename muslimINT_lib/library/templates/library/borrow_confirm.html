@@ -1,0 +1,103 @@
+{% extends "library/base.html" %}
+{% block content %}
+
+<section class="borrow-confirm-section">
+  {% if error %}
+    <div class="message error">
+      <h2>Erreur</h2>
+      <p>{{ error }}</p>
+      <a href="{% url 'library:book_list' %}" class="btn back-btn">Retour à la bibliothèque</a>
+    </div>
+  {% else %}
+    <div class="message success">
+      <h2>Emprunt confirmé</h2>
+      <p>Vous avez emprunté le livre <strong>{{ book.title }}</strong>.</p>
+      <p>Date limite de retour : <strong>{{ loan.due_date|date:"d/m/Y" }}</strong></p>
+
+      <div class="actions">
+        <a href="{% url 'library:book_list' %}" class="btn back-btn">Retour à la bibliothèque</a>
+        <a href="{% url 'library:my_loans' %}" class="btn borrow-btn">Voir mes emprunts</a>
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+<style>
+.borrow-confirm-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem 3rem;
+  max-width: 600px;
+  text-align: center;
+}
+
+.message h2 {
+  color: var(--deep-blue);
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.message p {
+  color: #374151;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.message.success {
+  border-left: 6px solid var(--mint-green);
+}
+
+.message.error {
+  border-left: 6px solid #ef4444;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn.borrow-btn {
+  background: var(--mint-green);
+  color: white;
+}
+
+.btn.borrow-btn:hover {
+  background: #24a46e;
+}
+
+.btn.back-btn {
+  background: var(--deep-blue);
+  color: white;
+}
+
+.btn.back-btn:hover {
+  background: #0a1a31;
+}
+</style>
+
+{% endblock %}

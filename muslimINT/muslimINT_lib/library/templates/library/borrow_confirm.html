@@ -1,0 +1,10 @@
+{% extends "library/base.html" %}
+{% block content %}
+{% if error %}
+    <p style="color:red">{{ error }}</p>
+{% else %}
+    <h2>Emprunt confirmé</h2>
+    <p>Tu as emprunté : <strong>{{ book.title }}</strong></p>
+    <p>/!\ À rendre avant : {{ loan.due_date }} /!\</p>
+{% endif %}
+{% endblock %}

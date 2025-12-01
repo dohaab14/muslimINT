@@ -1,0 +1,739 @@
+{% extends "library/base.html" %}
+{% load static %}
+{% block content %}
+<section class="library-section">
+  <div class="header">
+    <h2>Bibliothèque Muslim'INT</h2>
+    <p class="subtitle">Découvre, emprunte et partage la connaissance</p>
+    
+    <!-- Stats rapides -->
+    <div class="quick-stats">
+      <span class="stat">{{ total_books }} livre{{ total_books|pluralize }}</span>
+      <span class="separator">•</span>
+      <span class="stat available">{{ available_books }} disponible{{ available_books|pluralize }}</span>
+    </div>
+  </div>
+
+  <!-- Barre de recherche et filtres -->
+  <div class="search-container">
+    <form method="get" class="search-form" id="searchForm">
+      <!-- Recherche principale -->
+      <div class="search-main">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            name="q" 
+            placeholder="Rechercher par titre, auteur, description..." 
+            value="{{ search_query }}"
+            id="searchInput"
+          >
+          {% if search_query %}
+            <button type="button" class="clear-btn" onclick="clearSearch()">✕</button>
+          {% endif %}
+        </div>
+        <button type="submit" class="btn search-btn">Rechercher</button>
+      </div>
+
+      <!-- Filtres avancés -->
+      <div class="filters-toggle">
+        <button type="button" class="toggle-filters-btn" onclick="toggleFilters()">
+          <span id="filterIcon">⚙️</span> Filtres avancés
+          <span id="filterCount" class="filter-count" style="display: none;"></span>
+        </button>
+      </div>
+
+      <div class="advanced-filters" id="advancedFilters">
+        <div class="filters-grid">
+          <!-- Filtre par catégorie -->
+          <div class="filter-group">
+            <label for="category">📁 Catégorie</label>
+            <select name="category" id="category" onchange="this.form.submit()">
+              <option value="">Toutes les catégories</option>
+              {% for cat in categories %}
+                <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Filtre par auteur -->
+          <div class="filter-group">
+            <label for="author">✍️ Auteur</label>
+            <select name="author" id="author" onchange="this.form.submit()">
+              <option value="">Tous les auteurs</option>
+              {% for author in all_authors %}
+                <option value="{{ author }}" {% if selected_author == author %}selected{% endif %}>
+                  {{ author }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Filtre par disponibilité -->
+          <div class="filter-group">
+            <label for="availability">📊 Disponibilité</label>
+            <select name="availability" id="availability" onchange="this.form.submit()">
+              <option value="">Tous les livres</option>
+              <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>
+                Disponibles uniquement
+              </option>
+              <option value="unavailable" {% if selected_availability == 'unavailable' %}selected{% endif %}>
+                Empruntés
+              </option>
+            </select>
+          </div>
+
+          <!-- Tri -->
+          <div class="filter-group">
+            <label for="sort">🔀 Trier par</label>
+            <select name="sort" id="sort" onchange="this.form.submit()">
+              <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>
+                Titre (A-Z)
+              </option>
+              <option value="-title" {% if selected_sort == '-title' %}selected{% endif %}>
+                Titre (Z-A)
+              </option>
+              <option value="author" {% if selected_sort == 'author' %}selected{% endif %}>
+                Auteur
+              </option>
+              <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>
+                Plus récents
+              </option>
+              <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>
+                Plus anciens
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bouton réinitialiser -->
+        {% if search_query or selected_category or selected_author or selected_availability or selected_sort != 'title' %}
+          <div class="filter-actions">
+            <a href="{% url 'library:book_list' %}" class="btn btn-reset">
+              🔄 Réinitialiser tous les filtres
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </form>
+    
+    <!-- Résultats de recherche -->
+    {% if search_query or selected_category or selected_author or selected_availability %}
+      <div class="search-results">
+        <p>
+          <strong>{{ books|length }}</strong> résultat{{ books|length|pluralize }} trouvé{{ books|length|pluralize }}
+          {% if search_query %}
+            pour "<strong>{{ search_query }}</strong>"
+          {% endif %}
+          {% if selected_category %}
+            dans <strong>{{ selected_category }}</strong>
+          {% endif %}
+          {% if selected_author %}
+            par <strong>{{ selected_author }}</strong>
+          {% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Liste des livres -->
+  <div class="book-grid">
+    {% for book in books %}
+      <div class="book-card">
+        <div class="book-header">
+          {% if book.available_copies > 0 %}
+            <span class="availability-badge available">✓ Disponible</span>
+          {% else %}
+            <span class="availability-badge unavailable">✗ Emprunté</span>
+          {% endif %}
+        </div>
+        
+        <div class="book-info">
+          <h3>{{ book.title }}</h3>
+          {% if book.author %}
+            <p class="author">✍️ {{ book.author }}</p>
+          {% endif %}
+          
+          {% if book.description %}
+            <p class="desc">{{ book.description|truncatewords:20 }}</p>
+          {% else %}
+            <p class="desc no-desc">Aucune description disponible</p>
+          {% endif %}
+          
+          <div class="book-meta">
+            <p class="stock">
+              {% if book.available_copies > 0 %}
+                <span class="copies-available">
+                  {{ book.available_copies }}/{{ book.total_copies }} exemplaire{{ book.available_copies|pluralize }}
+                </span>
+              {% else %}
+                <span class="copies-unavailable">
+                  Tous les exemplaires sont empruntés
+                </span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        
+        <div class="book-actions">
+          {% if book.available_copies > 0 %}
+            <a href="{% url 'library:borrow_book' book.slug %}" class="btn borrow-btn">
+              📖 Emprunter
+            </a>
+          {% else %}
+            <button class="btn disabled" disabled>Non disponible</button>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <p>Aucun livre trouvé</p>
+        {% if search_query or selected_category or selected_author %}
+          <p class="empty-subtext">Essayez avec d'autres filtres ou mots-clés</p>
+          <a href="{% url 'library:book_list' %}" class="btn">Réinitialiser la recherche</a>
+        {% else %}
+          <p class="empty-subtext">La bibliothèque est en cours de construction</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+          « Première
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+          ‹ Précédent
+        </a>
+      {% endif %}
+      
+      <span class="page-info">
+        Page <strong>{{ page_obj.number }}</strong> sur <strong>{{ page_obj.paginator.num_pages }}</strong>
+      </span>
+      
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+          Suivant ›
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+          Dernière »
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+
+<style>
+.library-section {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.header h2 {
+  color: var(--deep-blue);
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.quick-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.quick-stats .stat {
+  font-weight: 600;
+}
+
+.quick-stats .stat.available {
+  color: var(--mint-green);
+}
+
+.quick-stats .separator {
+  color: #d1d5db;
+}
+
+/* Recherche */
+.search-container {
+  margin-bottom: 2rem;
+}
+
+.search-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.search-main {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+.search-form input[type="text"] {
+  width: 100%;
+  padding: 0.8rem 3rem 0.8rem 3rem;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-form input[type="text"]:focus {
+  border-color: var(--mint-green);
+  box-shadow: 0 0 0 3px rgba(44, 182, 125, 0.1);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.clear-btn:hover {
+  background: #dc2626;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-btn {
+  white-space: nowrap;
+}
+
+/* Filtres */
+.filters-toggle {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.toggle-filters-btn {
+  background: var(--light-gray);
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--deep-blue);
+}
+
+.toggle-filters-btn:hover {
+  background: var(--deep-blue);
+  color: white;
+  border-color: var(--deep-blue);
+}
+
+.filter-count {
+  background: var(--mint-green);
+  color: white;
+  border-radius: 12px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.advanced-filters {
+  display: none;
+  animation: slideDown 0.3s ease-out;
+  padding-top: 1rem;
+  border-top: 2px solid #f3f4f6;
+}
+
+.advanced-filters.active {
+  display: block;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--deep-blue);
+}
+
+.filter-group select {
+  padding: 0.6rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+}
+
+.filter-group select:focus {
+  border-color: var(--mint-green);
+  box-shadow: 0 0 0 3px rgba(44, 182, 125, 0.1);
+}
+
+.filter-actions {
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.btn-reset {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-reset:hover {
+  background: #4b5563;
+}
+
+.search-results {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f0fdf4;
+  border-radius: 8px;
+  border-left: 4px solid var(--mint-green);
+}
+
+.search-results p {
+  color: #065f46;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Grille de livres */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.book-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  border-color: var(--mint-green);
+}
+
+.book-header {
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.availability-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.availability-badge.available {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.availability-badge.unavailable {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.book-info {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.book-info h3 {
+  color: var(--deep-blue);
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.author {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.desc {
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.no-desc {
+  font-style: italic;
+  color: #9ca3af;
+}
+
+.book-meta {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.stock {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.copies-available {
+  color: var(--mint-green);
+}
+
+.copies-unavailable {
+  color: #ef4444;
+}
+
+.book-actions {
+  padding: 1rem 1.5rem;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn.borrow-btn {
+  width: 100%;
+  background: var(--mint-green);
+  color: white;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s;
+  display: block;
+}
+
+.btn.borrow-btn:hover {
+  background: #24a46e;
+  transform: translateY(-2px);
+}
+
+.btn.disabled {
+  width: 100%;
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* État vide */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+
+.empty-state p {
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtext {
+  color: #9ca3af;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 1.5rem 0;
+}
+
+.page-btn {
+  color: var(--deep-blue);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+  background: white;
+  border: 2px solid #e5e7eb;
+}
+
+.page-btn:hover {
+  background: var(--mint-green);
+  color: white;
+  border-color: var(--mint-green);
+  transform: translateY(-2px);
+}
+
+.page-info {
+  font-weight: 500;
+  color: #374151;
+  padding: 0 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .book-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-main {
+    flex-direction: column;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pagination {
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+<script>
+// Toggle filtres avancés
+function toggleFilters() {
+  const filters = document.getElementById('advancedFilters');
+  const icon = document.getElementById('filterIcon');
+  
+  if (filters.classList.contains('active')) {
+    filters.classList.remove('active');
+    icon.textContent = '⚙️';
+  } else {
+    filters.classList.add('active');
+    icon.textContent = '✕';
+  }
+}
+
+// Clear search input
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchForm').submit();
+}
+
+// Afficher le nombre de filtres actifs
+document.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  let activeFilters = 0;
+  
+  if (params.get('category')) activeFilters++;
+  if (params.get('author')) activeFilters++;
+  if (params.get('availability')) activeFilters++;
+  if (params.get('sort') && params.get('sort') !== 'title') activeFilters++;
+  
+  if (activeFilters > 0) {
+    const filterCount = document.getElementById('filterCount');
+    filterCount.textContent = activeFilters;
+    filterCount.style.display = 'inline-block';
+    
+    // Auto-ouvrir les filtres si des filtres sont actifs
+    document.getElementById('advancedFilters').classList.add('active');
+    document.getElementById('filterIcon').textContent = '✕';
+  }
+});
+</script>
+{% endblock %}

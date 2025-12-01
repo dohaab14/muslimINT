@@ -1,0 +1,16 @@
+body {
+  box-sizing: border-box;
+}
+
+.book-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+}
+
+.modal {
+  backdrop-filter: blur(4px);
+}

@@ -1,0 +1,590 @@
+{% extends "library/base.html" %}
+{% block content %}
+<section class="admin-loans-section">
+  <!-- Header -->
+  <div class="admin-header">
+    <div>
+      <h2>Gestion des Emprunts</h2>
+      <p class="subtitle">Suivi complet de tous les emprunts de la bibliothèque</p>
+    </div>
+    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">
+      ← Retour au tableau de bord
+    </a>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="filters-section">
+    <form method="get" class="filters-form">
+      <!-- Barre de recherche -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text"
+          name="q"
+          placeholder="Rechercher par nom, email, titre du livre..."
+          value="{{ search_query }}"
+        />
+        {% if search_query %}
+          <button type="button" class="clear-btn" onclick="this.previousElementSibling.value=''; this.form.submit();">✕</button>
+        {% endif %}
+      </div>
+
+      <!-- Filtres rapides -->
+      <div class="quick-filters">
+        <a href="?status=" class="filter-chip {% if not status_filter %}active{% endif %}">
+          Tous
+        </a>
+        <a href="?status=ongoing" class="filter-chip {% if status_filter == 'ongoing' %}active{% endif %}">
+            En cours
+        </a>
+        <a href="?status=overdue" class="filter-chip danger {% if status_filter == 'overdue' %}active{% endif %}">
+          ⚠️ En retard
+        </a>
+        <a href="?status=returned" class="filter-chip success {% if status_filter == 'returned' %}active{% endif %}">
+          ✓ Rendus
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tableau des emprunts -->
+  <div class="loans-table-container">
+    {% if loans %}
+      <table class="loans-table">
+        <thead>
+          <tr>
+            <th>Emprunteur</th>
+            <th>Contact</th>
+            <th>Livre</th>
+            <th>Date d'emprunt</th>
+            <th>Date limite</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for loan in loans %}
+            <tr class="{% if loan.status == 'overdue' or loan.due_date < now and loan.status == 'ongoing' %}overdue-row{% endif %}">
+              <!-- Emprunteur -->
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    {{ loan.borrower.first_name.0|default:loan.borrower.username.0|upper }}{{ loan.borrower.last_name.0|default:''|upper }}
+                  </div>
+                  <div>
+                    <p class="user-name">
+                      {% if loan.borrower.first_name %}
+                        {{ loan.borrower.first_name }} {{ loan.borrower.last_name }}
+                      {% else %}
+                        {{ loan.borrower.username }}
+                      {% endif %}
+                    </p>
+                    <p class="username-small">@{{ loan.borrower.username }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Contact -->
+              <td>
+                <div class="contact-info">
+                  <p class="email">
+                    📧 {{ loan.borrower.email|default:"Non renseigné" }}
+                  </p>
+                  {% if loan.borrower.borrowerprofile.phone %}
+                    <p class="phone">
+                      📱 {{ loan.borrower.borrowerprofile.phone }}
+                    </p>
+                  {% else %}
+                    <p class="phone">📱 Non renseigné</p>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- Livre -->
+              <td>
+                <div class="book-info">
+                  <p class="book-title">{{ loan.book.title }}</p>
+                  {% if loan.book.author %}
+                    <p class="book-author">par {{ loan.book.author }}</p>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- Date d'emprunt -->
+              <td>
+                <span class="date">{{ loan.borrowed_at|date:"d/m/Y" }}</span>
+                <span class="time-small">{{ loan.borrowed_at|date:"H:i" }}</span>
+              </td>
+
+              <!-- Date limite -->
+              <td>
+                <span class="date">{{ loan.due_date|date:"d/m/Y" }}</span>
+                {% if loan.status != 'returned' %}
+                  {% if loan.due_date < now %}
+                    {% with days_diff=now|timesince:loan.due_date %}
+                      <span class="delay-badge danger">
+                        ⚠️ {{ days_diff }} de retard
+                      </span>
+                    {% endwith %}
+                  {% else %}
+                    {% with days_left=loan.due_date|timeuntil:now %}
+                      <span class="delay-badge warning">
+                        Dans {{ days_left }}
+                      </span>
+                    {% endwith %}
+                  {% endif %}
+                {% endif %}
+              </td>
+
+              <!-- Statut -->
+              <td>
+                {% if loan.status == 'returned' %}
+                  <span class="status-badge returned">✓ Rendu</span>
+                  <span class="time-small">{{ loan.returned_at|date:"d/m/Y" }}</span>
+                {% elif loan.due_date < now %}
+                  <span class="status-badge overdue">⚠️ En retard</span>
+                {% else %}
+                  <span class="status-badge ongoing">En cours</span>
+                {% endif %}
+              </td>
+
+              <!-- Actions -->
+              <td>
+                <div class="action-buttons">
+                  {% if loan.status != 'returned' %}
+                    <a href="{% url 'library:admin_mark_returned' loan.id %}" 
+                       class="btn-action success"
+                       onclick="return confirm('Marquer cet emprunt comme rendu ?')">
+                      ✓ Rendu
+                    </a>
+                    <a href="{% url 'library:admin_extend_loan' loan.id %}?days=7" 
+                       class="btn-action primary"
+                       onclick="return confirm('Prolonger de 7 jours ?')">
+                      +7j
+                    </a>
+                    <a href="{% url 'library:admin_extend_loan' loan.id %}?days=14" 
+                       class="btn-action primary"
+                       onclick="return confirm('Prolonger de 14 jours ?')">
+                      +14j
+                    </a>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <p>Aucun emprunt trouvé</p>
+        {% if search_query or status_filter %}
+          <p class="empty-subtext">Essayez de modifier vos filtres</p>
+          <a href="{% url 'library:admin_loans' %}" class="btn">Réinitialiser</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+.admin-loans-section {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.admin-header h2 {
+  color: var(--deep-blue);
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.filters-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.filters-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.8rem 3rem 0.8rem 3rem;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  border-color: var(--mint-green);
+  box-shadow: 0 0 0 3px rgba(44, 182, 125, 0.1);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.clear-btn:hover {
+  background: #dc2626;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.quick-filters {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.filter-chip:hover {
+  border-color: var(--mint-green);
+  background: #f0fdf4;
+  color: var(--deep-blue);
+}
+
+.filter-chip.active {
+  background: var(--mint-green);
+  border-color: var(--mint-green);
+  color: white;
+}
+
+.filter-chip.danger {
+  border-color: #fecaca;
+}
+
+.filter-chip.danger:hover,
+.filter-chip.danger.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+.filter-chip.success {
+  border-color: #d1fae5;
+}
+
+.filter-chip.success:hover,
+.filter-chip.success.active {
+  background: var(--mint-green);
+  border-color: var(--mint-green);
+  color: white;
+}
+
+.loans-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.loans-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.loans-table thead {
+  background: linear-gradient(135deg, var(--deep-blue) 0%, #1a3a5f 100%);
+  color: white;
+}
+
+.loans-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.loans-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: top;
+}
+
+.loans-table tbody tr {
+  transition: background 0.2s;
+}
+
+.loans-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.loans-table tbody tr.overdue-row {
+  background: #fef2f2;
+}
+
+.loans-table tbody tr.overdue-row:hover {
+  background: #fee2e2;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mint-green), #24a46e);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--deep-blue);
+  margin: 0;
+}
+
+.username-small {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.contact-info {
+  font-size: 0.85rem;
+}
+
+.email, .phone {
+  margin: 0.2rem 0;
+  color: #374151;
+}
+
+.book-info {
+  max-width: 250px;
+}
+
+.book-title {
+  font-weight: 600;
+  color: var(--deep-blue);
+  margin: 0 0 0.2rem 0;
+}
+
+.book-author {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+.date {
+  display: block;
+  font-weight: 600;
+  color: var(--deep-blue);
+}
+
+.time-small {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.2rem;
+}
+
+.delay-badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+
+.delay-badge.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.delay-badge.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.returned {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.ongoing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-action.success {
+  background: var(--mint-green);
+  color: white;
+}
+
+.btn-action.success:hover {
+  background: #24a46e;
+  transform: translateY(-2px);
+}
+
+.btn-action.primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-action.primary:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+
+.empty-state p {
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtext {
+  color: #9ca3af;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+  .loans-table {
+    font-size: 0.9rem;
+  }
+  
+  .loans-table th,
+  .loans-table td {
+    padding: 0.8rem 0.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .loans-table-container {
+    overflow-x: auto;
+  }
+  
+  .loans-table {
+    min-width: 1000px;
+  }
+}
+</style>
+{% endblock %}

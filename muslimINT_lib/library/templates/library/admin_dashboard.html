@@ -51,6 +51,26 @@
     </div>
   </div>
 
+  <!-- Actions rapides : Ajouter / Modifier un livre -->
+  <div class="quick-actions-grid">
+    <a href="{% url 'library:admin_add_book' %}" class="dashboard-card">
+      <div class="card-icon">📚</div>
+      <div class="card-content">
+        <h3>Ajouter un livre</h3>
+        <p>Créer un nouveau livre dans la bibliothèque</p>
+      </div>
+    </a>
+
+    <a href="{% url 'library:book_list' %}" class="dashboard-card">
+      <div class="card-icon">✏️</div>
+      <div class="card-content">
+        <h3>Modifier un livre</h3>
+        <p>Rechercher et mettre à jour les livres existants</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Contenu principal -->
   <div class="content-grid">
     <!-- Emprunts récents -->
     <div class="content-card">
@@ -158,439 +178,89 @@
 </section>
 
 <style>
-.dashboard-section {
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* =================== Dashboard Base =================== */
+.dashboard-section { animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
 
 .dashboard-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: linear-gradient(135deg, var(--deep-blue) 0%, #1a3a5f 100%);
-  border-radius: 12px;
-  color: white;
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding:2rem;
+  background:linear-gradient(135deg, var(--deep-blue) 0%, #1a3a5f 100%); border-radius:12px; color:white;
 }
+.dashboard-hero h2 { font-size:2rem; margin-bottom:0.3rem; }
+.dashboard-hero .subtitle { color: rgba(255,255,255,0.8); }
 
-.dashboard-hero h2 {
-  font-size: 2rem;
-  margin-bottom: 0.3rem;
-}
+/* =================== Stats =================== */
+.stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+.stat-card { background:white; border-radius:12px; padding:1.5rem; display:flex; align-items:center; gap:1rem;
+  border-left:5px solid; transition:transform 0.3s; }
+.stat-card:hover { transform:translateY(-5px); }
+.stat-card.blue{border-left-color:#3b82f6;} .stat-card.green{border-left-color:var(--mint-green);}
+.stat-card.red{border-left-color:#ef4444;} .stat-card.purple{border-left-color:#a855f7;}
+.stat-icon{font-size:3rem; width:70px; height:70px; display:flex; align-items:center; justify-content:center; border-radius:12px;}
+.stat-card.blue .stat-icon{background:#dbeafe;} .stat-card.green .stat-icon{background:#d1fae5;}
+.stat-card.red .stat-icon{background:#fee2e2;} .stat-card.purple .stat-icon{background:#f3e8ff;}
+.stat-content{flex:1;} .stat-label{color:#6b7280; font-size:0.9rem; font-weight:500; margin-bottom:0.3rem;}
+.stat-value{font-size:2.5rem; font-weight:700; color:var(--deep-blue); line-height:1; margin-bottom:0.3rem;}
+.stat-detail{color:#6b7280; font-size:0.85rem;}
 
-.dashboard-hero .subtitle {
-  color: rgba(255, 255, 255, 0.8);
-}
+/* =================== Quick Actions =================== */
+.quick-actions-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+.dashboard-card{ background:white; border-radius:12px; padding:1.5rem; display:flex; align-items:center; gap:1rem;
+ text-decoration:none; color:inherit; box-shadow:0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s;}
+.dashboard-card:hover{ transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+.card-icon{ font-size:2.5rem; }
+.card-content h3{ margin:0 0 0.2rem 0; font-size:1.2rem; color:var(--deep-blue);}
+.card-content p{ margin:0; color:#6b7280; font-size:0.9rem; }
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
+/* =================== Content Grid =================== */
+.content-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(450px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+.content-card{ background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 15px rgba(0,0,0,0.08);}
+.content-card h3{ color:var(--deep-blue); font-size:1.3rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
 
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-left: 5px solid;
-  transition: transform 0.3s;
-}
+/* =================== Loans List =================== */
+.loans-list, .overdue-list{ display:flex; flex-direction:column; gap:1rem; margin-bottom:1rem; max-height:400px; overflow-y:auto; }
+.loan-item, .overdue-item{ display:flex; align-items:center; gap:1rem; padding:1rem; border-radius:8px; transition:background 0.2s; }
+.loan-item{ background:#f9fafb; } .loan-item:hover{ background:#f3f4f6; }
+.overdue-item{ background:#fef2f2; border:1px solid #fecaca; flex-direction:column; }
+.loan-avatar{ width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,var(--mint-green),#24a46e); color:white;
+ display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0;}
+.loan-details{ flex:1; min-width:0; } .loan-user{ font-weight:600; color:var(--deep-blue); margin:0 0 0.2rem 0;}
+.loan-book{ font-size:0.9rem; color:#374151; margin:0 0 0.2rem 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.loan-email{ font-size:0.8rem; color:#6b7280; margin:0;} .loan-time{ font-size:0.85rem; color:#9ca3af; white-space:nowrap;}
 
-.stat-card:hover {
-  transform: translateY(-5px);
-}
+.overdue-header{ display:flex; justify-content:space-between; align-items:start; margin-bottom:0.8rem; width:100%; }
+.overdue-user{ flex:1; } .user-name{ font-weight:600; color:var(--deep-blue); margin:0 0 0.3rem 0; }
+.book-name{ font-size:0.9rem; color:#374151; margin:0 0 0.3rem 0; }
+.contact-info{ font-size:0.8rem; color:#6b7280; margin:0.2rem 0;}
+.overdue-delay{text-align:right;} .delay-text{ display:inline-block; padding:0.4rem 0.8rem; background:#ef4444; color:white; border-radius:12px; font-size:0.85rem; font-weight:600;}
+.overdue-actions{ display:flex; gap:0.5rem;}
+.btn-small{ padding:0.5rem 1rem; border-radius:6px; font-size:0.85rem; font-weight:600; text-decoration:none; transition:all 0.3s; flex:1; text-align:center;}
+.btn-small.success{ background:var(--mint-green); color:white;} .btn-small.success:hover{ background:#24a46e; transform:translateY(-2px);}
+.btn-small.primary{ background:#3b82f6; color:white;} .btn-small.primary:hover{ background:#2563eb; transform:translateY(-2px);}
 
-.stat-card.blue {
-  border-left-color: #3b82f6;
-}
+/* =================== Popular Books =================== */
+.popular-section{ background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 15px rgba(0,0,0,0.08);}
+.popular-section h3{ color:var(--deep-blue); font-size:1.3rem; margin-bottom:1rem;}
+.popular-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:1rem;}
+.popular-card{ padding:1rem; background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%); border:1px solid #bae6fd; border-radius:8px; transition:transform 0.3s;}
+.popular-card:hover{ transform:translateY(-3px);}
+.popular-rank{ font-size:1.8rem; font-weight:700; color:#3b82f6; margin-bottom:0.5rem;}
+.popular-title{ font-weight:600; color:var(--deep-blue); font-size:0.9rem; margin:0 0 0.3rem 0; line-height:1.3; min-height:2.6rem;}
+.popular-count{ font-size:0.8rem; color:#6b7280; margin:0 0 0.5rem 0;}
+.availability-badge{ display:inline-block; padding:0.3rem 0.6rem; border-radius:12px; font-size:0.75rem; font-weight:600;}
+.availability-badge.available{ background:#d1fae5; color:#065f46; }
+.availability-badge.unavailable{ background:#fee2e2; color:#991b1b; }
 
-.stat-card.green {
-  border-left-color: var(--mint-green);
-}
-
-.stat-card.red {
-  border-left-color: #ef4444;
-}
-
-.stat-card.purple {
-  border-left-color: #a855f7;
-}
-
-.stat-icon {
-  font-size: 3rem;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-.stat-card.blue .stat-icon {
-  background: #dbeafe;
-}
-
-.stat-card.green .stat-icon {
-  background: #d1fae5;
-}
-
-.stat-card.red .stat-icon {
-  background: #fee2e2;
-}
-
-.stat-card.purple .stat-icon {
-  background: #f3e8ff;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.3rem;
-}
-
-.stat-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--deep-blue);
-  line-height: 1;
-  margin-bottom: 0.3rem;
-}
-
-.stat-detail {
-  color: #6b7280;
-  font-size: 0.85rem;
-}
-
-/* Content Grid */
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.content-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.content-card h3 {
-  color: var(--deep-blue);
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Loans List */
-.loans-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.loan-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.loan-item:hover {
-  background: #f3f4f6;
-}
-
-.loan-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--mint-green), #24a46e);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.loan-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.loan-user {
-  font-weight: 600;
-  color: var(--deep-blue);
-  margin: 0 0 0.2rem 0;
-}
-
-.loan-book {
-  font-size: 0.9rem;
-  color: #374151;
-  margin: 0 0 0.2rem 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.loan-email {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.loan-time {
-  font-size: 0.85rem;
-  color: #9ca3af;
-  white-space: nowrap;
-}
-
-/* Overdue List */
-.overdue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.overdue-item {
-  padding: 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-}
-
-.overdue-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  margin-bottom: 0.8rem;
-}
-
-.overdue-user {
-  flex: 1;
-}
-
-.user-name {
-  font-weight: 600;
-  color: var(--deep-blue);
-  margin: 0 0 0.3rem 0;
-}
-
-.book-name {
-  font-size: 0.9rem;
-  color: #374151;
-  margin: 0 0 0.3rem 0;
-}
-
-.contact-info {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin: 0.2rem 0;
-}
-
-.overdue-delay {
-  text-align: right;
-}
-
-.delay-text {
-  display: inline-block;
-  padding: 0.4rem 0.8rem;
-  background: #ef4444;
-  color: white;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.overdue-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-small {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s;
-  flex: 1;
-  text-align: center;
-}
-
-.btn-small.success {
-  background: var(--mint-green);
-  color: white;
-}
-
-.btn-small.success:hover {
-  background: #24a46e;
-  transform: translateY(-2px);
-}
-
-.btn-small.primary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-small.primary:hover {
-  background: #2563eb;
-  transform: translateY(-2px);
-}
-
-/* Card Link */
-.card-link {
-  display: block;
-  text-align: center;
-  color: #3b82f6;
-  font-weight: 600;
-  text-decoration: none;
-  padding: 0.8rem;
-  border-top: 1px solid #f3f4f6;
-  margin-top: 1rem;
-  transition: color 0.3s;
-}
-
-.card-link:hover {
-  color: #2563eb;
-}
-
-.card-link.danger {
-  color: #ef4444;
-}
-
-.card-link.danger:hover {
-  color: #dc2626;
-}
-
-/* Popular Section */
-.popular-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.popular-section h3 {
-  color: var(--deep-blue);
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-}
-
-.popular-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.popular-card {
-  padding: 1rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1px solid #bae6fd;
-  border-radius: 8px;
-  transition: transform 0.3s;
-}
-
-.popular-card:hover {
-  transform: translateY(-3px);
-}
-
-.popular-rank {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #3b82f6;
-  margin-bottom: 0.5rem;
-}
-
-.popular-title {
-  font-weight: 600;
-  color: var(--deep-blue);
-  font-size: 0.9rem;
-  margin: 0 0 0.3rem 0;
-  line-height: 1.3;
-  min-height: 2.6rem;
-}
-
-.popular-count {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin: 0 0 0.5rem 0;
-}
-
-.availability-badge {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.availability-badge.available {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.availability-badge.unavailable {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* Empty State */
-.empty-text {
-  text-align: center;
-  color: #9ca3af;
-  padding: 2rem;
-  font-style: italic;
-}
+/* Empty Text */
+.empty-text{ text-align:center; color:#9ca3af; padding:2rem; font-style:italic; }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .dashboard-hero {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .popular-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width:768px){
+  .dashboard-hero{ flex-direction:column; align-items:flex-start; gap:1rem;}
+  .content-grid{ grid-template-columns:1fr; }
+  .popular-grid{ grid-template-columns:1fr; }
+  .stats-grid{ grid-template-columns:1fr; }
+  .quick-actions-grid{ grid-template-columns:1fr; }
 }
 </style>
 {% endblock %}

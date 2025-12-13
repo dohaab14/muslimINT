@@ -178,12 +178,20 @@
         </div>
         
         <div class="book-actions">
-          {% if book.available_copies > 0 %}
-            <a href="{% url 'library:borrow_book' book.slug %}" class="btn borrow-btn">
-              📖 Emprunter
-            </a>
+          {% if user.is_staff %}
+            <a href="{% url 'library:admin_edit_book' book.id %}" class="btn borrow-btn" style="background:#fbbf24;">✏️ Modifier</a>
+            <form action="{% url 'library:admin_delete_book' book.id %}" method="post" style="display:inline-block;">
+              {% csrf_token %}
+              <button type="submit" class="btn disabled" style="background:#ef4444;color:white;">🗑 Supprimer</button>
+            </form>
           {% else %}
-            <button class="btn disabled" disabled>Non disponible</button>
+            {% if book.available_copies > 0 %}
+              <a href="{% url 'library:borrow_book' book.slug %}" class="btn borrow-btn">
+                📖 Emprunter
+              </a>
+            {% else %}
+              <button class="btn disabled" disabled>Non disponible</button>
+            {% endif %}
           {% endif %}
         </div>
       </div>

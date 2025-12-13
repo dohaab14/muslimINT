@@ -7,7 +7,7 @@ from django.db.models import Q, Count
 from datetime import timedelta
 from django.contrib.auth.models import User 
 from .models import Book, Loan, BorrowerProfile, Category, Author
-
+from django.contrib.auth import authenticate, login, logout
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
@@ -304,12 +304,6 @@ def admin_mark_returned(request, loan_id):
     
     return redirect('library:admin_loans')
 
-# Ajoute ces imports en haut de views.py
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
-
-# Ajoute cette vue à la fin de views.py
-
 def custom_login(request):
     """Page de connexion personnalisée"""
     if request.user.is_authenticated:
@@ -339,7 +333,6 @@ def custom_login(request):
     
     return render(request, 'library/login.html')
 
-
 def custom_logout(request):
     """Déconnexion personnalisée"""
     logout(request)
@@ -361,3 +354,85 @@ def admin_extend_loan(request, loan_id):
         messages.warning(request, 'Impossible de prolonger un emprunt déjà rendu.')
     
     return redirect('library:admin_loans')
+
+
+# Creation, deletion and update of books if the user is an admin
+@login_required
+@user_passes_test(is_admin)
+def admin_add_book(request):
+    """Ajouter un nouveau livre (admin)"""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        description = request.POST.get('description', '')
+        isbn = request.POST.get('isbn', '')
+        total_copies = int(request.POST.get('total_copies', 1))
+        category_name = request.POST.get('category', '').strip()
+        
+        category, created = Category.objects.get_or_create(name=category_name) if category_name else (None, False)
+        
+        book = Book.objects.create(
+            title=title,
+            author=author,
+            description=description,
+            isbn=isbn,
+            total_copies=total_copies,
+            available_copies=total_copies,
+            category=category
+        )
+        
+        messages.success(request, f'Le livre "{book.title}" a été ajouté avec succès.')
+        return redirect('library:admin_dashboard')
+    
+    return render(request, 'library/admin_add_book.html')
+
+@login_required
+@user_passes_test(is_admin)
+def admin_edit_book(request, book_id):
+    """Modifier un livre existant (admin)"""
+    book = get_object_or_404(Book, id=book_id)
+    
+    if request.method == 'POST':
+        book.title = request.POST.get('title')
+        book.author = request.POST.get('author')
+        book.description = request.POST.get('description', '')
+        book.isbn = request.POST.get('isbn', '')
+        new_total_copies = int(request.POST.get('total_copies', book.total_copies))
+        category_name = request.POST.get('category', '').strip()
+        
+        category, created = Category.objects.get_or_create(name=category_name) if category_name else (None, False)
+        book.category = category
+        
+        # Ajuster les copies disponibles si le total change
+        difference = new_total_copies - book.total_copies
+        book.total_copies = new_total_copies
+        book.available_copies += difference
+        if book.available_copies < 0:
+            book.available_copies = 0
+        
+        book.save()
+        
+        messages.success(request, f'Le livre "{book.title}" a été mis à jour avec succès.')
+        return redirect('library:admin_dashboard')
+    
+    context = {
+        'book': book
+    }
+    return render(request, 'library/admin_edit_book.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_delete_book(request, book_id):
+    """Supprimer un livre (admin)"""
+    book = get_object_or_404(Book, id=book_id)
+    
+    if request.method == 'POST':
+        book_title = book.title
+        book.delete()
+        messages.success(request, f'Le livre "{book_title}" a été supprimé avec succès.')
+        return redirect('library:admin_dashboard')
+    
+    context = {
+        'book': book
+    }
+    return render(request, 'library/admin_delete_book.html', context)

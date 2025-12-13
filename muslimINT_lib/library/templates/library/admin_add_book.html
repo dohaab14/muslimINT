@@ -1,0 +1,54 @@
+{% extends "library/base.html" %}
+{% block content %}
+<section class="form-section">
+  <h2>Ajouter un nouveau livre</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="title">Titre</label>
+      <input type="text" name="title" id="title" required>
+    </div>
+
+    <div class="form-group">
+      <label for="author">Auteur</label>
+      <input type="text" name="author" id="author" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea name="description" id="description"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="isbn">ISBN</label>
+      <input type="text" name="isbn" id="isbn">
+    </div>
+
+    <div class="form-group">
+      <label for="total_copies">Nombre de copies</label>
+      <input type="number" name="total_copies" id="total_copies" value="1" min="1">
+    </div>
+
+    <div class="form-group">
+      <label for="category">Catégorie</label>
+      <input type="text" name="category" id="category">
+    </div>
+
+    <button type="submit" class="btn">Ajouter le livre</button>
+    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</section>
+
+<style>
+.form-section{ max-width:600px; margin:2rem auto; background:white; padding:2rem; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08);}
+.form-section h2{ color:var(--deep-blue); margin-bottom:1.5rem;}
+.form-group{ margin-bottom:1rem; display:flex; flex-direction:column; }
+.form-group label{ font-weight:600; margin-bottom:0.3rem; }
+.form-group input, .form-group textarea{ padding:0.5rem; border-radius:6px; border:1px solid #d1d5db; font-size:1rem; }
+textarea{ resize:vertical; min-height:80px; }
+.btn{ background:var(--deep-blue); color:white; padding:0.7rem 1.2rem; border-radius:6px; text-decoration:none; font-weight:600; border:none; cursor:pointer; }
+.btn:hover{ background:#2563eb; }
+.btn-secondary{ background:#6b7280; margin-left:1rem; }
+.btn-secondary:hover{ background:#4b5563; }
+</style>
+{% endblock %}

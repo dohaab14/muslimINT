@@ -22,4 +22,11 @@ urlpatterns = [
     path('admin-loans/', views.admin_loans, name='admin_loans'),
     path('admin-loans/<int:loan_id>/mark-returned/', views.admin_mark_returned, name='admin_mark_returned'),
     path('admin-loans/<int:loan_id>/extend/', views.admin_extend_loan, name='admin_extend_loan'),
+
+    # Creation , deletion, update of new books
+    path('admin-books/add/', views.admin_add_book, name='admin_add_book'),
+    path('admin-books/<int:book_id>/edit/', views.admin_edit_book, name='admin_edit_book'),
+    path('admin-books/<int:book_id>/delete/', views.admin_delete_book, name='admin_delete_book'),
+
+
 ]

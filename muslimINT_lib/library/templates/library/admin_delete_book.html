@@ -1,0 +1,15 @@
+{% extends "library/base.html" %}
+{% block content %}
+<section class="form-section">
+  <h2>Supprimer le livre : "{{ book.title }}"</h2>
+  <p>Êtes-vous sûr de vouloir supprimer ce livre ? Cette action est irréversible.</p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn">Supprimer</button>
+    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</section>
+
+{{ block.super }}
+{% endblock %}

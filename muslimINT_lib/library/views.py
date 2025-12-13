@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from .models import Book, Loan, BorrowerProfile, Category, Author
 
 
-# Fonction pour vérifier si l'utilisateur est admin/staff
 def is_admin(user):
     return user.is_staff or user.is_superuser
 

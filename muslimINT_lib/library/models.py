@@ -56,6 +56,7 @@ class Book(models.Model):
     
     description = models.TextField(blank=True, verbose_name="Description")
     isbn = models.CharField(max_length=20, blank=True, verbose_name="ISBN")
+    edition = models.CharField(max_length=100, blank=True, verbose_name="Édition")
     
     # Gestion des exemplaires
     total_copies = models.PositiveIntegerField(default=1, verbose_name="Nombre total d'exemplaires")

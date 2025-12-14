@@ -1,32 +1,34 @@
 {% extends "library/base.html" %}
 {% load static %}
+
 {% block content %}
 <section class="library-section">
-  <div class="header">
+
+  <!-- HEADER -->
+  <header class="header">
     <h2>Bibliothèque Muslim'INT</h2>
     <p class="subtitle">Découvre, emprunte et partage la connaissance</p>
-    
-    <!-- Stats rapides -->
+
     <div class="quick-stats">
       <span class="stat">{{ total_books }} livre{{ total_books|pluralize }}</span>
       <span class="separator">•</span>
       <span class="stat available">{{ available_books }} disponible{{ available_books|pluralize }}</span>
     </div>
-  </div>
+  </header>
 
-  <!-- Barre de recherche et filtres -->
+  <!-- RECHERCHE -->
   <div class="search-container">
-    <form method="get" class="search-form" id="searchForm">
-      <!-- Recherche principale -->
+    <form method="get" id="searchForm" class="search-form">
+
       <div class="search-main">
         <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
-          <input 
-            type="text" 
-            name="q" 
-            placeholder="Rechercher par titre, auteur, description..." 
-            value="{{ search_query }}"
+          <input
+            type="text"
+            name="q"
             id="searchInput"
+            placeholder="Rechercher par titre, auteur, description…"
+            value="{{ search_query }}"
           >
           {% if search_query %}
             <button type="button" class="clear-btn" onclick="clearSearch()">✕</button>
@@ -35,21 +37,20 @@
         <button type="submit" class="btn search-btn">Rechercher</button>
       </div>
 
-      <!-- Filtres avancés -->
       <div class="filters-toggle">
         <button type="button" class="toggle-filters-btn" onclick="toggleFilters()">
           <span id="filterIcon">⚙️</span> Filtres avancés
-          <span id="filterCount" class="filter-count" style="display: none;"></span>
+          <span id="filterCount" class="filter-count" style="display:none;"></span>
         </button>
       </div>
 
-      <div class="advanced-filters" id="advancedFilters">
+      <div id="advancedFilters" class="advanced-filters">
         <div class="filters-grid">
-          <!-- Filtre par catégorie -->
+
           <div class="filter-group">
-            <label for="category">📁 Catégorie</label>
-            <select name="category" id="category" onchange="this.form.submit()">
-              <option value="">Toutes les catégories</option>
+            <label>📁 Catégorie</label>
+            <select name="category" onchange="this.form.submit()">
+              <option value="">Toutes</option>
               {% for cat in categories %}
                 <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>
                   {{ cat.name }}
@@ -58,11 +59,10 @@
             </select>
           </div>
 
-          <!-- Filtre par auteur -->
           <div class="filter-group">
-            <label for="author">✍️ Auteur</label>
-            <select name="author" id="author" onchange="this.form.submit()">
-              <option value="">Tous les auteurs</option>
+            <label>✍️ Auteur</label>
+            <select name="author" onchange="this.form.submit()">
+              <option value="">Tous</option>
               {% for author in all_authors %}
                 <option value="{{ author }}" {% if selected_author == author %}selected{% endif %}>
                   {{ author }}
@@ -71,77 +71,40 @@
             </select>
           </div>
 
-          <!-- Filtre par disponibilité -->
           <div class="filter-group">
-            <label for="availability">📊 Disponibilité</label>
-            <select name="availability" id="availability" onchange="this.form.submit()">
-              <option value="">Tous les livres</option>
-              <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>
-                Disponibles uniquement
+            <label>📊 Disponibilité</label>
+            <select name="availability" onchange="this.form.submit()">
+              <option value="">Tous</option>
+              <option value="available" {% if selected_availability == "available" %}selected{% endif %}>
+                Disponibles
               </option>
-              <option value="unavailable" {% if selected_availability == 'unavailable' %}selected{% endif %}>
+              <option value="unavailable" {% if selected_availability == "unavailable" %}selected{% endif %}>
                 Empruntés
               </option>
             </select>
           </div>
 
-          <!-- Tri -->
           <div class="filter-group">
-            <label for="sort">🔀 Trier par</label>
-            <select name="sort" id="sort" onchange="this.form.submit()">
-              <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>
-                Titre (A-Z)
-              </option>
-              <option value="-title" {% if selected_sort == '-title' %}selected{% endif %}>
-                Titre (Z-A)
-              </option>
-              <option value="author" {% if selected_sort == 'author' %}selected{% endif %}>
-                Auteur
-              </option>
-              <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>
-                Plus récents
-              </option>
-              <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>
-                Plus anciens
-              </option>
+            <label>🔀 Trier</label>
+            <select name="sort" onchange="this.form.submit()">
+              <option value="title">Titre A–Z</option>
+              <option value="-title">Titre Z–A</option>
+              <option value="author">Auteur</option>
+              <option value="newest">Récents</option>
+              <option value="oldest">Anciens</option>
             </select>
           </div>
-        </div>
 
-        <!-- Bouton réinitialiser -->
-        {% if search_query or selected_category or selected_author or selected_availability or selected_sort != 'title' %}
-          <div class="filter-actions">
-            <a href="{% url 'library:book_list' %}" class="btn btn-reset">
-              🔄 Réinitialiser tous les filtres
-            </a>
-          </div>
-        {% endif %}
+        </div>
       </div>
     </form>
-    
-    <!-- Résultats de recherche -->
-    {% if search_query or selected_category or selected_author or selected_availability %}
-      <div class="search-results">
-        <p>
-          <strong>{{ books|length }}</strong> résultat{{ books|length|pluralize }} trouvé{{ books|length|pluralize }}
-          {% if search_query %}
-            pour "<strong>{{ search_query }}</strong>"
-          {% endif %}
-          {% if selected_category %}
-            dans <strong>{{ selected_category }}</strong>
-          {% endif %}
-          {% if selected_author %}
-            par <strong>{{ selected_author }}</strong>
-          {% endif %}
-        </p>
-      </div>
-    {% endif %}
   </div>
 
-  <!-- Liste des livres -->
+  <!-- LISTE DES LIVRES -->
   <div class="book-grid">
     {% for book in books %}
-      <div class="book-card">
+      <article class="book-card">
+
         <div class="book-header">
           {% if book.available_copies > 0 %}
             <span class="availability-badge available">✓ Disponible</span>
@@ -149,41 +112,35 @@
             <span class="availability-badge unavailable">✗ Emprunté</span>
           {% endif %}
         </div>
-        
+
         <div class="book-info">
           <h3>{{ book.title }}</h3>
-          {% if book.author %}
-            <p class="author">✍️ {{ book.author }}</p>
-          {% endif %}
-          
-          {% if book.description %}
-            <p class="desc">{{ book.description|truncatewords:20 }}</p>
-          {% else %}
-            <p class="desc no-desc">Aucune description disponible</p>
-          {% endif %}
-          
-          <div class="book-meta">
-            <p class="stock">
-              {% if book.available_copies > 0 %}
-                <span class="copies-available">
-                  {{ book.available_copies }}/{{ book.total_copies }} exemplaire{{ book.available_copies|pluralize }}
-                </span>
-              {% else %}
-                <span class="copies-unavailable">
-                  Tous les exemplaires sont empruntés
-                </span>
-              {% endif %}
-            </p>
-          </div>
+          {% if book.author %}<p class="author">✍️ {{ book.author }}</p>{% endif %}
+          <p class="desc">
+            {{ book.description|default:"Aucune description disponible"|truncatewords:20 }}
+          </p>
         </div>
-        
+
+        <!-- ACTIONS -->
         <div class="book-actions">
+
           {% if user.is_staff %}
-            <a href="{% url 'library:admin_edit_book' book.id %}" class="btn borrow-btn" style="background:#fbbf24;">✏️ Modifier</a>
-            <form action="{% url 'library:admin_delete_book' book.id %}" method="post" style="display:inline-block;">
-              {% csrf_token %}
-              <button type="submit" class="btn disabled" style="background:#ef4444;color:white;">🗑 Supprimer</button>
-            </form>
+            <div class="admin-actions">
+              <a href="{% url 'library:admin_edit_book' book.id %}" class="icon-btn edit-btn" title="Modifier">
+                ✏️
+              </a>
+
+              <form method="post"
+                    action="{% url 'library:admin_delete_book' book.id %}"
+                    class="delete-form"
+                    onsubmit="return confirm('Supprimer ce livre définitivement ?');">
+                {% csrf_token %}
+                <button type="submit" class="icon-btn delete-btn" title="Supprimer">
+                  🗑
+                </button>
+              </form>
+            </div>
+
           {% else %}
             {% if book.available_copies > 0 %}
               <a href="{% url 'library:borrow_book' book.slug %}" class="btn borrow-btn">
@@ -193,49 +150,19 @@
               <button class="btn disabled" disabled>Non disponible</button>
             {% endif %}
           {% endif %}
+
         </div>
-      </div>
+      </article>
     {% empty %}
       <div class="empty-state">
         <div class="empty-icon">📚</div>
         <p>Aucun livre trouvé</p>
-        {% if search_query or selected_category or selected_author %}
-          <p class="empty-subtext">Essayez avec d'autres filtres ou mots-clés</p>
-          <a href="{% url 'library:book_list' %}" class="btn">Réinitialiser la recherche</a>
-        {% else %}
-          <p class="empty-subtext">La bibliothèque est en cours de construction</p>
-        {% endif %}
       </div>
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
-  {% if is_paginated %}
-    <div class="pagination">
-      {% if page_obj.has_previous %}
-        <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
-          « Première
-        </a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
-          ‹ Précédent
-        </a>
-      {% endif %}
-      
-      <span class="page-info">
-        Page <strong>{{ page_obj.number }}</strong> sur <strong>{{ page_obj.paginator.num_pages }}</strong>
-      </span>
-      
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
-          Suivant ›
-        </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
-          Dernière »
-        </a>
-      {% endif %}
-    </div>
-  {% endif %}
 </section>
+
 
 <style>
 .library-section {
@@ -403,6 +330,43 @@
 
 .advanced-filters.active {
   display: block;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.edit-btn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.delete-form {
+  margin: 0;
 }
 
 @keyframes slideDown {

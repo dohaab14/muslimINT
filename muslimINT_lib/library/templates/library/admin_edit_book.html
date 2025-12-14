@@ -1,9 +1,174 @@
 {% extends "library/base.html" %}
+
 {% block content %}
+
+<style>
+/* ===== FORM SECTION ===== */
+.form-section {
+  max-width: 720px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease;
+}
+
+.form-section h2 {
+  font-size: 1.8rem;
+  color: var(--deep-blue);
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+.form-subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+/* ===== FORM ===== */
+.book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--deep-blue);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  background: #fff;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--mint-green);
+  box-shadow: 0 0 0 3px rgba(44, 182, 125, 0.15);
+  outline: none;
+}
+
+/* ===== ACTIONS ===== */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions .btn {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  background: var(--mint-green);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #24a46e;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* ===== DELETE ===== */
+.delete-form {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed #fee2e2;
+  text-align: center;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .form-section {
+    padding: 1.8rem;
+    margin: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
 <section class="form-section">
-  <h2>Modifier le livre : "{{ book.title }}"</h2>
-  <form method="POST">
+
+  <h2>✏️ Modifier le livre</h2>
+  <p class="form-subtitle">« {{ book.title }} »</p>
+
+  <!-- FORMULAIRE MODIFICATION -->
+  <form method="post" class="book-form">
     {% csrf_token %}
+
     <div class="form-group">
       <label for="title">Titre</label>
       <input type="text" name="title" id="title" value="{{ book.title }}" required>
@@ -16,32 +181,43 @@
 
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea name="description" id="description">{{ book.description }}</textarea>
+      <textarea name="description" id="description" rows="4">{{ book.description }}</textarea>
     </div>
 
     <div class="form-group">
       <label for="isbn">ISBN</label>
-      <input type="text" name="isbn" id="isbn" value="{{ book.isbn }}">
+      <input type="text" name="isbn" id="isbn" value="{{ book.isbn|default:'' }}">
     </div>
 
     <div class="form-group">
       <label for="total_copies">Nombre de copies</label>
-      <input type="number" name="total_copies" id="total_copies" value="{{ book.total_copies }}" min="1">
+      <input type="number" name="total_copies" id="total_copies"
+             value="{{ book.total_copies }}" min="1" required>
     </div>
 
     <div class="form-group">
       <label for="category">Catégorie</label>
-      <input type="text" name="category" id="category" value="{{ book.category.name if book.category }}">
+      <input type="text" name="category" id="category"
+             value="{{ book.category.name|default:'' }}">
     </div>
 
-    <button type="submit" class="btn">Mettre à jour</button>
-    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">Annuler</a>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Mettre à jour</button>
+      <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
 
-    <button type="submit" class="btn">Supprimer</button>
-    <a href="{% url 'library:admin_delete_book' book.id %}" class="btn btn-secondary">Annuler</a>
+  <!-- SUPPRESSION -->
+  <form method="post"
+        action="{% url 'library:admin_delete_book' book.id %}"
+        class="delete-form"
+        onsubmit="return confirm('Supprimer ce livre définitivement ?');">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+      🗑 Supprimer le livre
+    </button>
+  </form>
 
-</form>
 </section>
 
-{{ block.super }}
 {% endblock %}

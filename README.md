@@ -2,21 +2,42 @@
 
 ## MuslimINT website
 
-A website to borrow, add and check books from the association MuslimInt.
-A follow-up of whom borrowed which book and give alerts if the time to give the book is not that far.
+Site web permettant d’emprunter, ajouter et gérer des livres de l’association MuslimInt.  
+Suivi des emprunts et alertes lorsque la date de retour approche.
 
-### Creation in local of the venv and activation
-```
+---
+
+## Prérequis
+- Python 3.x
+- pip
+- virtualenv
+
+---
+
+## Création et activation de l’environnement virtuel
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Installation of the requirements
-In ./ launch `pip3 install -r requirements.txt`
+## Installation des dépendances
+À la racine du projet :
 
-### Launching the website
+`pip3 install -r requirements.txt``
 
-```
-cd muslimINT_lib
-python3 manage.py runserver
-```
+
+## Création de la base de données (Django)
+Se placer dans le dossier du projet Django : `cd muslimINT_lib`
+
+Créer les fichiers de migration : `python3 manage.py makemigrations`
+
+Créer la base de données et appliquer les migrations : `python3 manage.py migrate`
+
+Créer un super utilisateur pour la partie admin : `python3 manage.py createsuperuser`
+
+## Lancement du serveur de développement
+
+`python manage.py runserver`
+
+--> Application accessible à l’adresse : http://127.0.0.1:8000/ (en local pour le moment)

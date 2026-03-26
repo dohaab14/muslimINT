@@ -248,7 +248,12 @@ footer {
             Espace Admin
           </a>
         {% endif %}
-        <span class="username">{{ user.username }}</span>
+        {% if user.is_superuser %}
+          <a href="{% url 'library:manage_staff' %}" {% if request.resolver_match.url_name == 'manage_staff' %}class="active"{% endif %}>
+            Gérer l'équipe
+          </a>
+        {% endif %}
+        <a href="{% url 'library:profile' %}" class="username" style="text-decoration:none;">{{ user.username }}</a>
         <a class="btn btn-secondary" href="{% url 'library:logout' %}">Déconnexion</a>
       {% else %}
         <a class="btn" href="{% url 'library:login' %}">Se connecter</a>

@@ -56,6 +56,7 @@ class Book(models.Model):
     
     description = models.TextField(blank=True, verbose_name="Description")
     isbn = models.CharField(max_length=20, blank=True, verbose_name="ISBN")
+    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True, verbose_name="Image de couverture")
     
     # Gestion des exemplaires
     total_copies = models.PositiveIntegerField(default=1, verbose_name="Nombre total d'exemplaires")

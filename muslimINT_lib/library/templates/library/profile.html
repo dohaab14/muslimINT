@@ -1,0 +1,58 @@
+{% extends "library/base.html" %}
+{% block content %}
+<section style="max-width: 600px; margin: 2rem auto;">
+  <h2 style="margin-bottom: 1.5rem;">👤 Mon Profil</h2>
+  
+  <form method="post" style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Nom d'utilisateur</label>
+      <input type="text" value="{{ user.username }}" disabled
+             style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; background: #f3f4f6; color: #6b7280;">
+      <small style="color: #9ca3af;">Le nom d'utilisateur ne peut pas être modifié.</small>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; margin-bottom: 0.4rem; font-weight: 600;">E-mail</label>
+      <input type="email" value="{{ user.email }}" disabled
+             style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; background: #f3f4f6; color: #6b7280;">
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <label for="first_name" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Prénom</label>
+        <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}"
+               style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+      </div>
+      <div>
+        <label for="last_name" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Nom</label>
+        <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}"
+               style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+      </div>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label for="phone" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">📱 Téléphone</label>
+      <input type="tel" name="phone" id="phone" value="{{ profile.phone }}"
+             style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label for="student_id" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">🎓 Numéro étudiant</label>
+      <input type="text" name="student_id" id="student_id" value="{{ profile.student_id }}"
+             style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+    </div>
+    
+    <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+      Enregistrer les modifications
+    </button>
+  </form>
+  
+  <div style="margin-top: 1.5rem; text-align: center;">
+    <a href="{% url 'library:password_reset' %}" style="color: var(--mint-green); font-weight: 500;">
+      🔑 Changer mon mot de passe
+    </a>
+  </div>
+</section>
+{% endblock %}

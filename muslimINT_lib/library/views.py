@@ -311,32 +311,62 @@ from django.contrib.auth.forms import AuthenticationForm
 
 # Ajoute cette vue à la fin de views.py
 
+# Cache simple pour limiter les tentatives de connexion par IP
+_login_attempts = {}
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = 300  # 5 minutes en secondes
+
 def custom_login(request):
-    """Page de connexion personnalisée"""
+    """Page de connexion personnalisée avec protection brute-force"""
     if request.user.is_authenticated:
-        # Si déjà connecté, rediriger selon le rôle
         if request.user.is_staff:
             return redirect('library:admin_dashboard')
         else:
             return redirect('library:my_loans')
     
+    ip = request.META.get('REMOTE_ADDR', '')
+    
     if request.method == 'POST':
+        # Vérifier le verrouillage
+        if ip in _login_attempts:
+            attempts, last_attempt = _login_attempts[ip]
+            if attempts >= MAX_LOGIN_ATTEMPTS:
+                elapsed = (timezone.now() - last_attempt).total_seconds()
+                if elapsed < LOCKOUT_DURATION:
+                    remaining = int((LOCKOUT_DURATION - elapsed) / 60) + 1
+                    messages.error(request, f'Trop de tentatives. Réessayez dans {remaining} minute(s).')
+                    return render(request, 'library/login.html')
+                else:
+                    del _login_attempts[ip]
+        
         username = request.POST.get('username')
         password = request.POST.get('password')
         
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            # Reset les tentatives en cas de succès
+            _login_attempts.pop(ip, None)
             login(request, user)
             messages.success(request, f'Bienvenue {user.username} ! 👋')
             
-            # Redirection selon le rôle
             if user.is_staff:
                 return redirect('library:admin_dashboard')
             else:
                 return redirect('library:my_loans')
         else:
-            messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
+            # Incrémenter les tentatives
+            if ip in _login_attempts:
+                attempts, _ = _login_attempts[ip]
+                _login_attempts[ip] = (attempts + 1, timezone.now())
+            else:
+                _login_attempts[ip] = (1, timezone.now())
+            
+            remaining = MAX_LOGIN_ATTEMPTS - _login_attempts[ip][0]
+            if remaining > 0:
+                messages.error(request, f'Identifiant ou mot de passe incorrect. {remaining} tentative(s) restante(s).')
+            else:
+                messages.error(request, f'Compte temporairement verrouillé. Réessayez dans 5 minutes.')
     
     return render(request, 'library/login.html')
 
@@ -350,9 +380,17 @@ def custom_logout(request):
 @login_required
 @user_passes_test(is_admin)
 def admin_extend_loan(request, loan_id):
-    """Prolonger un emprunt (admin)"""
+    """Prolonger un emprunt (admin) - POST uniquement"""
+    if request.method != 'POST':
+        return redirect('library:admin_loans')
+    
     loan = get_object_or_404(Loan, id=loan_id)
-    days = int(request.GET.get('days', 7))
+    try:
+        days = int(request.POST.get('days', 7))
+        if days < 1 or days > 90:
+            days = 7
+    except (ValueError, TypeError):
+        days = 7
     
     if loan.status == 'ongoing':
         loan.due_date = loan.due_date + timedelta(days=days)
@@ -362,3 +400,116 @@ def admin_extend_loan(request, loan_id):
         messages.warning(request, 'Impossible de prolonger un emprunt déjà rendu.')
     
     return redirect('library:admin_loans')
+
+
+# ===== PROFIL UTILISATEUR =====
+
+@login_required
+def profile(request):
+    """Page de profil utilisateur"""
+    borrower_profile, created = BorrowerProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        student_id = request.POST.get('student_id', '').strip()
+        
+        request.user.first_name = first_name
+        request.user.last_name = last_name
+        request.user.save()
+        
+        borrower_profile.phone = phone
+        borrower_profile.student_id = student_id
+        borrower_profile.save()
+        
+        messages.success(request, 'Votre profil a été mis à jour avec succès !')
+        return redirect('library:profile')
+    
+    context = {
+        'profile': borrower_profile,
+    }
+    return render(request, 'library/profile.html', context)
+
+
+# ===== GESTION STAFF (SUPERUSER UNIQUEMENT) =====
+
+def is_superuser(user):
+    return user.is_superuser
+
+
+@login_required
+@user_passes_test(is_superuser)
+def manage_staff(request):
+    """Page pour gérer les membres staff"""
+    users = User.objects.all().order_by('username')
+    
+    # Ajouter un membre par email
+    if request.method == 'POST' and 'add_member' in request.POST:
+        email = request.POST.get('email', '').strip()
+        make_staff = request.POST.get('make_staff') == 'on'
+        
+        if not email:
+            messages.error(request, 'Veuillez entrer une adresse e-mail.')
+        elif User.objects.filter(email=email).exists():
+            existing = User.objects.get(email=email)
+            if make_staff and not existing.is_staff:
+                existing.is_staff = True
+                existing.save()
+                messages.success(request, f'{existing.username} ({email}) a été promu gestionnaire.')
+            else:
+                messages.warning(request, f'Un compte avec l\'email {email} existe déjà ({existing.username}).')
+        else:
+            # Créer le compte avec l'email comme username temporaire
+            username = email.split('@')[0]
+            # Éviter les doublons de username
+            base_username = username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f'{base_username}{counter}'
+                counter += 1
+            
+            from django.contrib.auth.hashers import make_password
+            import secrets
+            temp_password = secrets.token_urlsafe(10)
+            new_user = User.objects.create(
+                username=username,
+                email=email,
+                password=make_password(temp_password),
+                is_staff=make_staff,
+            )
+            BorrowerProfile.objects.get_or_create(user=new_user)
+            messages.success(request, f'Compte créé pour {email} (identifiant : {username}, mot de passe temporaire : {temp_password}). L\'utilisateur devra changer son mot de passe.')
+        
+        return redirect('library:manage_staff')
+    
+    context = {
+        'all_users': users,
+    }
+    return render(request, 'library/manage_staff.html', context)
+
+
+@login_required
+@user_passes_test(is_superuser)
+def toggle_staff(request, user_id):
+    """Promouvoir ou rétrograder un utilisateur staff"""
+    if request.method == 'POST':
+        target_user = get_object_or_404(User, id=user_id)
+        
+        if target_user == request.user:
+            messages.error(request, 'Vous ne pouvez pas modifier votre propre statut.')
+            return redirect('library:manage_staff')
+        
+        if target_user.is_superuser:
+            messages.error(request, 'Vous ne pouvez pas modifier le statut d\'un autre superutilisateur.')
+            return redirect('library:manage_staff')
+        
+        target_user.is_staff = not target_user.is_staff
+        target_user.save()
+        
+        if target_user.is_staff:
+            messages.success(request, f'{target_user.username} a été promu gestionnaire.')
+        else:
+            messages.success(request, f'{target_user.username} n\'est plus gestionnaire.')
+    
+    return redirect('library:manage_staff')

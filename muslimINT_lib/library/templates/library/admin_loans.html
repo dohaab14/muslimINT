@@ -157,16 +157,20 @@
                        onclick="return confirm('Marquer cet emprunt comme rendu ?')">
                       ✓ Rendu
                     </a>
-                    <a href="{% url 'library:admin_extend_loan' loan.id %}?days=7" 
-                       class="btn-action primary"
-                       onclick="return confirm('Prolonger de 7 jours ?')">
-                      +7j
-                    </a>
-                    <a href="{% url 'library:admin_extend_loan' loan.id %}?days=14" 
-                       class="btn-action primary"
-                       onclick="return confirm('Prolonger de 14 jours ?')">
-                      +14j
-                    </a>
+                    <form method="post" action="{% url 'library:admin_extend_loan' loan.id %}" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="days" value="7">
+                      <button type="submit" class="btn-action primary" onclick="return confirm('Prolonger de 7 jours ?')">
+                        +7j
+                      </button>
+                    </form>
+                    <form method="post" action="{% url 'library:admin_extend_loan' loan.id %}" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="days" value="14">
+                      <button type="submit" class="btn-action primary" onclick="return confirm('Prolonger de 14 jours ?')">
+                        +14j
+                      </button>
+                    </form>
                   {% else %}
                     <span class="text-muted">—</span>
                   {% endif %}

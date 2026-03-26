@@ -1,0 +1,102 @@
+{% extends "library/base.html" %}
+{% block content %}
+<section style="max-width: 900px; margin: 2rem auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h2>👥 Gestion des Gestionnaires</h2>
+      <p style="color: #666;">Promouvoir ou rétrograder des membres pour gérer la bibliothèque</p>
+    </div>
+    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">← Retour au tableau de bord</a>
+  </div>
+
+  <!-- Ajouter un membre par email -->
+  <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">➕ Ajouter un membre</h3>
+    <form method="post" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+      {% csrf_token %}
+      <input type="hidden" name="add_member" value="1">
+      <div style="flex: 1; min-width: 250px;">
+        <label for="email" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Adresse e-mail</label>
+        <input type="email" name="email" id="email" required placeholder="exemple@telecom-sudparis.eu"
+               style="width: 100%; padding: 0.65rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem;">
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="checkbox" name="make_staff" id="make_staff" style="width: 18px; height: 18px;">
+        <label for="make_staff" style="font-size: 0.9rem; font-weight: 500;">Gestionnaire</label>
+      </div>
+      <button type="submit" class="btn" style="padding: 0.65rem 1.5rem;">Ajouter</button>
+    </form>
+  </div>
+
+  <!-- Liste des utilisateurs -->
+  <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: var(--deep-blue); color: white;">
+          <th style="padding: 1rem; text-align: left;">Utilisateur</th>
+          <th style="padding: 1rem; text-align: left;">E-mail</th>
+          <th style="padding: 1rem; text-align: center;">Rôle</th>
+          <th style="padding: 1rem; text-align: center;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in all_users %}
+          <tr style="border-bottom: 1px solid #e5e7eb; {% if u.is_superuser %}background: #fef3c7;{% elif u.is_staff %}background: #d1fae5;{% endif %}">
+            <td style="padding: 1rem;">
+              <strong>{{ u.username }}</strong>
+              {% if u.first_name %}
+                <br><small style="color: #6b7280;">{{ u.first_name }} {{ u.last_name }}</small>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem; color: #6b7280;">{{ u.email|default:"Non renseigné" }}</td>
+            <td style="padding: 1rem; text-align: center;">
+              {% if u.is_superuser %}
+                <span style="background: #fbbf24; color: #92400e; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                  👑 Super Admin
+                </span>
+              {% elif u.is_staff %}
+                <span style="background: #34d399; color: #065f46; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                  ✅ Gestionnaire
+                </span>
+              {% else %}
+                <span style="background: #e5e7eb; color: #374151; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">
+                  Membre
+                </span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem; text-align: center;">
+              {% if u.is_superuser %}
+                <span style="color: #9ca3af; font-size: 0.85rem;">—</span>
+              {% elif u == request.user %}
+                <span style="color: #9ca3af; font-size: 0.85rem;">Vous</span>
+              {% else %}
+                <form method="post" action="{% url 'library:toggle_staff' u.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  {% if u.is_staff %}
+                    <button type="submit"
+                            style="background: #ef4444; color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem;"
+                            onclick="return confirm('Retirer les droits de gestionnaire à {{ u.username }} ?')">
+                      Retirer
+                    </button>
+                  {% else %}
+                    <button type="submit"
+                            style="background: var(--mint-green); color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem;"
+                            onclick="return confirm('Promouvoir {{ u.username }} comme gestionnaire ?')">
+                      Promouvoir
+                    </button>
+                  {% endif %}
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div style="margin-top: 1.5rem; padding: 1rem; background: #dbeafe; border-radius: 8px; color: #1e40af;">
+    <strong>ℹ️ Info :</strong> Les gestionnaires ont accès au tableau de bord admin, à la gestion des emprunts et peuvent marquer les livres comme rendus.
+    Seul le Super Admin peut promouvoir ou rétrograder les gestionnaires.
+  </div>
+</section>
+{% endblock %}

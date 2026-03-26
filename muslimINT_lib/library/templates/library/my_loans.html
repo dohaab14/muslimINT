@@ -46,7 +46,7 @@
           <div class="loan-card {% if loan.due_date < now %}overdue{% endif %}">
             <div class="loan-main">
               <div class="book-details">
-                <h4>{{ loan.book.title }}</h4>
+                <h4><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></h4>
                 {% if loan.book.author %}
                   <p class="author">par {{ loan.book.author }}</p>
                 {% endif %}
@@ -109,7 +109,7 @@
           {% for loan in history_loans %}
             <tr>
               <td class="book-title">
-                <strong>{{ loan.book.title }}</strong>
+                <strong><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></strong>
                 {% if loan.book.author %}
                   <br><small class="author-small">{{ loan.book.author }}</small>
                 {% endif %}

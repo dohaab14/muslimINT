@@ -69,7 +69,7 @@
                   {{ loan.borrower.username }}
                 {% endif %}
               </p>
-              <p class="loan-book">{{ loan.book.title }}</p>
+              <p class="loan-book"><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></p>
               <p class="loan-email">📧 {{ loan.borrower.email }}</p>
             </div>
             <div class="loan-time">
@@ -100,7 +100,7 @@
                     {{ loan.borrower.username }}
                   {% endif %}
                 </p>
-                <p class="book-name">{{ loan.book.title }}</p>
+                <p class="book-name"><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></p>
                 <p class="contact-info">📧 {{ loan.borrower.email }}</p>
                 {% if loan.borrower.borrowerprofile.phone %}
                   <p class="contact-info">📱 {{ loan.borrower.borrowerprofile.phone }}</p>
@@ -139,7 +139,7 @@
         <div class="popular-card">
           <div class="popular-rank">#{{ forloop.counter }}</div>
           <div class="popular-info">
-            <p class="popular-title">{{ book.title }}</p>
+            <p class="popular-title"><a href="{% url 'library:book_detail' book.slug %}" style="color:inherit;text-decoration:none;">{{ book.title }}</a></p>
             <p class="popular-count">{{ book.loan_count }} emprunt{{ book.loan_count|pluralize }}</p>
             <span class="availability-badge {% if book.available_copies > 0 %}available{% else %}unavailable{% endif %}">
               {% if book.available_copies > 0 %}

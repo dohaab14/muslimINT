@@ -1,0 +1,73 @@
+{% extends "library/base.html" %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
+    <a href="{% url 'library:book_list' %}" style="color: var(--mint-green); text-decoration: none;">← Retour au catalogue</a>
+
+    <div style="display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <!-- Image du livre -->
+        <div style="flex: 0 0 300px;">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="Couverture de {{ book.title }}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            {% endif %}
+        </div>
+
+        <!-- Infos du livre -->
+        <div style="flex: 1; min-width: 250px;">
+            <h1 style="margin: 0 0 0.5rem;">{{ book.title }}</h1>
+            <p style="font-size: 1.1rem; color: #666;">
+                <strong>Auteur :</strong> {{ book.author }}
+            </p>
+
+            {% if book.category %}
+                <p><strong>Catégorie :</strong> {{ book.category.name }}</p>
+            {% endif %}
+
+            {% if book.isbn %}
+                <p><strong>ISBN :</strong> {{ book.isbn }}</p>
+            {% endif %}
+
+            <!-- Disponibilité -->
+            {% if book.available_copies > 0 %}
+                <div style="background: #d4edda; color: #155724; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0;">
+                    ✅ <strong>Disponible</strong> — {{ book.available_copies }} exemplaire{{ book.available_copies|pluralize }} sur {{ book.total_copies }}
+                </div>
+            {% else %}
+                <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0;">
+                    ❌ <strong>Indisponible</strong> — Tous les exemplaires sont empruntés
+                </div>
+            {% endif %}
+
+            <!-- Nombre d'emprunts -->
+            <p><strong>📊 Nombre d'emprunts :</strong> {{ book.loans.count }}</p>
+
+            <!-- Avis spirituel -->
+            {% if book.spiritual_review %}
+                <p><strong>🕌 Avis spirituel :</strong> {{ book.spiritual_review }}</p>
+            {% endif %}
+
+            <!-- Bouton emprunter -->
+            {% if user.is_authenticated and book.available_copies > 0 %}
+                <form method="post" action="{% url 'library:borrow_book' book.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 1rem;">
+                        📚 Emprunter ce livre
+                    </button>
+                </form>
+            {% elif not user.is_authenticated %}
+                <a href="{% url 'library:login' %}" style="display: inline-block; background: var(--deep-blue); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; margin-top: 1rem;">
+                    🔐 Se connecter pour emprunter
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Description -->
+    {% if book.description %}
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+            <h2>📝 Description</h2>
+            <p>{{ book.description|linebreaks }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -103,7 +103,7 @@
               <!-- Livre -->
               <td>
                 <div class="book-info">
-                  <p class="book-title">{{ loan.book.title }}</p>
+                  <p class="book-title"><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></p>
                   {% if loan.book.author %}
                     <p class="book-author">par {{ loan.book.author }}</p>
                   {% endif %}

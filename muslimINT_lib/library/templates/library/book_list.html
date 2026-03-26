@@ -141,6 +141,7 @@
   <!-- Liste des livres -->
   <div class="book-grid">
     {% for book in books %}
+      <a href="{% url 'library:book_detail' book.slug %}" class="book-card-link" style="text-decoration:none;color:inherit;">
       <div class="book-card">
         <div class="book-header">
           {% if book.available_copies > 0 %}
@@ -179,14 +180,13 @@
         
         <div class="book-actions">
           {% if book.available_copies > 0 %}
-            <a href="{% url 'library:borrow_book' book.slug %}" class="btn borrow-btn">
-              📖 Emprunter
-            </a>
+            <span class="btn borrow-btn">📖 Voir le livre</span>
           {% else %}
-            <button class="btn disabled" disabled>Non disponible</button>
+            <span class="btn disabled">Non disponible</span>
           {% endif %}
         </div>
       </div>
+      </a>
     {% empty %}
       <div class="empty-state">
         <div class="empty-icon">📚</div>

@@ -35,8 +35,8 @@ body {
 header {
   background-color: white;
   border-bottom: 3px solid var(--mint-green);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.8rem 2rem;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -48,74 +48,72 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* Crucial pour le mobile */
 }
 
 header h1 a {
   text-decoration: none;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 header h1 img {
-  height: 90px;              /* ← augmenté */
-  max-height: 12vh;          /* ← limite pour petits écrans */
-  vertical-align: middle;
+  height: clamp(60px, 8vw, 90px); /* Taille adaptative automatique */
   transition: transform 0.3s ease;
 }
 
 header h1 img:hover {
-  transform: scale(1.05);    /* petit effet au survol */
+  transform: scale(1.03);
 }
 
 /* Navigation */
 nav {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap; /* Permet aux liens de passer à la ligne sur petit écran */
 }
 
 nav a {
   text-decoration: none;
   color: var(--deep-blue);
   font-weight: 500;
-  transition: color 0.3s;
-  padding: 0.4rem 0;
-  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
 }
 
-nav a:hover {
+nav a:hover:not(.btn, .username) {
   color: var(--mint-green);
-  border-bottom-color: var(--mint-green);
+  background: rgba(44, 182, 125, 0.05);
 }
 
-nav a.active {
+nav a.active:not(.btn, .username) {
   color: var(--mint-green);
-  border-bottom-color: var(--mint-green);
+  font-weight: 700;
 }
 
 .username {
-  background: var(--mint-green);
-  color: white;
+  background: #f1f5f9; /* Plus doux que le vert flash pour le pseudo */
+  color: var(--deep-blue);
+  border: 1px solid #e2e8f0;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  border-radius: 12px;
   font-weight: 600;
+}
+
+.username:hover {
+  border-color: var(--mint-green);
 }
 
 /* Main content */
 main {
   flex: 1;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px; /* Réduit un peu pour une meilleure lisibilité */
   margin: 2rem auto;
-  padding: 0 2rem;
-}
-
-/* Container */
-.container {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
+  padding: 0 1.5rem;
 }
 
 /* Footer */
@@ -123,7 +121,7 @@ footer {
   background-color: var(--deep-blue);
   color: white;
   text-align: center;
-  padding: 1.5rem;
+  padding: 2rem 1rem;
   font-size: 0.9rem;
   margin-top: auto;
 }
@@ -133,7 +131,7 @@ footer {
   background: var(--mint-green);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0.6rem 1.2rem;
   cursor: pointer;
   font-weight: 600;
@@ -149,79 +147,61 @@ footer {
 }
 
 .btn-secondary {
-  background: var(--deep-blue);
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .btn-secondary:hover {
-  background: #1a3a5f;
+  background: #e2e8f0;
+  color: #1e293b;
 }
 
 /* Messages Django */
 .messages {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 1rem auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
 }
 
 .alert {
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  margin-bottom: 0.8rem;
   font-weight: 500;
-}
-
-.alert-success {
-  background: #d1fae5;
-  color: #065f46;
-  border-left: 4px solid #10b981;
-}
-
-.alert-error {
-  background: #fee2e2;
-  color: #991b1b;
-  border-left: 4px solid #ef4444;
-}
-
-.alert-warning {
-  background: #fef3c7;
-  color: #92400e;
-  border-left: 4px solid #f59e0b;
-}
-
-.alert-info {
-  background: #dbeafe;
-  color: #1e40af;
-  border-left: 4px solid #3b82f6;
+  font-size: 0.9rem;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  header {
-    padding: 1rem;
-  }
-  
+@media (max-width: 900px) {
   .header-content {
+    justify-content: center;
     flex-direction: column;
-    gap: 1rem;
-  }
-  
-  header h1 img {
-    height: 70px; /* un peu plus petit sur mobile */
+    text-align: center;
   }
   
   nav {
-    flex-wrap: wrap;
+    margin-top: 1rem;
     justify-content: center;
+    gap: 0.5rem;
   }
-  
-  main {
-    padding: 0 1rem;
-    margin: 1rem auto;
+
+  nav a {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.6rem;
   }
-  
-  .container {
-    padding: 1rem;
-  }
+}
+
+@media (max-width: 480px) {
+    header h1 img {
+        height: 60px;
+    }
+    nav {
+        gap: 0.3rem;
+    }
+    .username {
+        width: 100%; /* Le pseudo prend toute la largeur sur tout petit écran */
+        text-align: center;
+    }
 }
 </style>
 </head>
@@ -230,33 +210,27 @@ footer {
   <div class="header-content">
     <h1>
       <a href="{% url 'library:book_list' %}">
-        <img src="{% static 'library/images/muslimint_logo.png' %}" 
-             alt="MuslimINT">
+        <img src="{% static 'library/images/muslimint_logo.png' %}" alt="MuslimINT">
       </a>
     </h1>
     
     <nav>
       {% if user.is_authenticated %}
-        <a href="{% url 'library:book_list' %}" {% if request.resolver_match.url_name == 'book_list' %}class="active"{% endif %}>
-          Bibliothèque
-        </a>
-        <a href="{% url 'library:my_loans' %}" {% if request.resolver_match.url_name == 'my_loans' %}class="active"{% endif %}>
-          Mes emprunts
-        </a>
+        <a href="{% url 'library:book_list' %}" {% if request.resolver_match.url_name == 'book_list' %}class="active"{% endif %}>Bibliothèque</a>
+        <a href="{% url 'library:my_loans' %}" {% if request.resolver_match.url_name == 'my_loans' %}class="active"{% endif %}>Prêts</a>
+        
         {% if user.is_staff %}
-          <a href="{% url 'library:admin_dashboard' %}" {% if 'admin' in request.resolver_match.url_name %}class="active"{% endif %}>
-            Espace Admin
-          </a>
+          <a href="{% url 'library:admin_dashboard' %}" {% if 'admin' in request.resolver_match.url_name %}class="active"{% endif %}>Admin</a>
         {% endif %}
+        
         {% if user.is_superuser %}
-          <a href="{% url 'library:manage_staff' %}" {% if request.resolver_match.url_name == 'manage_staff' %}class="active"{% endif %}>
-            Gérer l'équipe
-          </a>
+          <a href="{% url 'library:manage_staff' %}" {% if request.resolver_match.url_name == 'manage_staff' %}class="active"{% endif %}>Équipe</a>
         {% endif %}
-        <a href="{% url 'library:profile' %}" class="username" style="text-decoration:none;">{{ user.username }}</a>
-        <a class="btn btn-secondary" href="{% url 'library:logout' %}">Déconnexion</a>
+
+        <a href="{% url 'library:profile' %}" class="username">👤 {{ user.username }}</a>
+        <a class="btn btn-secondary" href="{% url 'library:logout' %}" style="font-size: 0.8rem;">Se Déconnecter</a>
       {% else %}
-        <a class="btn" href="{% url 'library:login' %}">Se connecter</a>
+        <a class="btn" href="{% url 'library:login' %}">Connexion</a>
       {% endif %}
     </nav>
   </div>
@@ -277,10 +251,9 @@ footer {
 </main>
 
 <footer>
-  © {{ now|date:"Y" }} MuslimINT — Bibliothèque numérique inspirante 🌙
-  <br>
-  <small style="opacity: 0.8; margin-top: 0.5rem; display: inline-block;">
-    Faciliter l'accès au savoir islamique pour tous
+  <p>© {% now "Y" %} MuslimINT — Bibliothèque numérique 🌙</p>
+  <small style="opacity: 0.7; margin-top: 0.5rem; display: block;">
+    Savoir. Partage. Excellence.
   </small>
 </footer>
 </body>

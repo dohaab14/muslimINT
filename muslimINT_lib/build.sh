@@ -2,5 +2,5 @@
 set -o errexit
 
 pip install -r requirements.txt
-python manage.py collectstatic --no-input
-python manage.py migrate
+python muslimINT_lib/manage.py collectstatic --no-input
+python muslimINT_lib/manage.py migrate

@@ -1,102 +1,106 @@
 {% extends "library/base.html" %}
 {% block content %}
-<section style="max-width: 900px; margin: 2rem auto;">
+<section style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
     <div>
-      <h2>👥 Gestion des Gestionnaires</h2>
-      <p style="color: #666;">Promouvoir ou rétrograder des membres pour gérer la bibliothèque</p>
+      <h2 style="color: var(--deep-blue); font-weight: 700;">👥 Gestion de l'Équipe</h2>
+      <p style="color: #64748b;">Gérez les accès administrateurs de Maktaba'Int</p>
     </div>
-    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary">← Retour au tableau de bord</a>
+    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary" style="text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; background: #e2e8f0; color: #475569; font-weight: 600;">
+      ← Tableau de bord
+    </a>
   </div>
 
-  <!-- Ajouter un membre par email -->
-  <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 2rem;">
-    <h3 style="margin-bottom: 1rem;">➕ Ajouter un membre</h3>
-    <form method="post" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+  <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #f1f5f9;">
+    <h3 style="margin-bottom: 1.2rem; font-size: 1.1rem; color: var(--deep-blue);">➕ Ajouter un nouveau membre</h3>
+    <form method="post" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
       {% csrf_token %}
       <input type="hidden" name="add_member" value="1">
-      <div style="flex: 1; min-width: 250px;">
-        <label for="email" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Adresse e-mail</label>
-        <input type="email" name="email" id="email" required placeholder="exemple@telecom-sudparis.eu"
-               style="width: 100%; padding: 0.65rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem;">
+      
+      <div style="flex: 1; min-width: 280px;">
+        <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: #475569;">Adresse e-mail institutionnelle</label>
+        <input type="email" name="email" id="email" required placeholder="nom.prenom@telecom-sudparis.eu"
+               style="width: 100%; padding: 0.75rem; border: 2px solid #f1f5f9; background: #f8fafc; border-radius: 10px; font-size: 0.95rem; transition: 0.2s;">
       </div>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <input type="checkbox" name="make_staff" id="make_staff" style="width: 18px; height: 18px;">
-        <label for="make_staff" style="font-size: 0.9rem; font-weight: 500;">Gestionnaire</label>
+
+      <div style="display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.8rem;">
+        <input type="checkbox" name="make_staff" id="make_staff" style="width: 20px; height: 20px; accent-color: var(--mint-green);">
+        <label for="make_staff" style="font-size: 0.9rem; font-weight: 500; color: #475569; cursor: pointer;">Nommer gestionnaire</label>
       </div>
-      <button type="submit" class="btn" style="padding: 0.65rem 1.5rem;">Ajouter</button>
+
+      <button type="submit" class="btn" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+        Ajouter le membre
+      </button>
     </form>
   </div>
 
-  <!-- Liste des utilisateurs -->
-  <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse;">
+  <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #f1f5f9;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
       <thead>
         <tr style="background: var(--deep-blue); color: white;">
-          <th style="padding: 1rem; text-align: left;">Utilisateur</th>
-          <th style="padding: 1rem; text-align: left;">E-mail</th>
-          <th style="padding: 1rem; text-align: center;">Rôle</th>
-          <th style="padding: 1rem; text-align: center;">Action</th>
+          <th style="padding: 1.2rem 1rem; text-align: left; font-weight: 600;">Utilisateur</th>
+          <th style="padding: 1.2rem 1rem; text-align: left; font-weight: 600;">E-mail</th>
+          <th style="padding: 1.2rem 1rem; text-align: center; font-weight: 600;">Statut</th>
+          <th style="padding: 1.2rem 1rem; text-align: center; font-weight: 600;">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for u in all_users %}
-          <tr style="border-bottom: 1px solid #e5e7eb; {% if u.is_superuser %}background: #fef3c7;{% elif u.is_staff %}background: #d1fae5;{% endif %}">
+          <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s; {% if u.is_superuser %}background: #fffbeb;{% endif %}">
             <td style="padding: 1rem;">
-              <strong>{{ u.username }}</strong>
-              {% if u.first_name %}
-                <br><small style="color: #6b7280;">{{ u.first_name }} {{ u.last_name }}</small>
+              <div style="font-weight: 600; color: var(--deep-blue);">{{ u.username }}</div>
+              {% if u.get_full_name %}
+                <div style="font-size: 0.8rem; color: #94a3b8;">{{ u.get_full_name }}</div>
               {% endif %}
             </td>
-            <td style="padding: 1rem; color: #6b7280;">{{ u.email|default:"Non renseigné" }}</td>
+            
+            <td style="padding: 1rem; color: #64748b; font-size: 0.9rem;">
+              {{ u.email|default:"—" }}
+            </td>
+
             <td style="padding: 1rem; text-align: center;">
               {% if u.is_superuser %}
-                <span style="background: #fbbf24; color: #92400e; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
-                  👑 Super Admin
-                </span>
+                <span style="background: #fef3c7; color: #92400e; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">👑 Super Admin</span>
               {% elif u.is_staff %}
-                <span style="background: #34d399; color: #065f46; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
-                  ✅ Gestionnaire
-                </span>
+                <span style="background: #dcfce7; color: #166534; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">✅ Staff</span>
               {% else %}
-                <span style="background: #e5e7eb; color: #374151; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">
-                  Membre
-                </span>
+                <span style="background: #f1f5f9; color: #475569; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 600; font-size: 0.75rem;">MEMBRE</span>
               {% endif %}
             </td>
+
             <td style="padding: 1rem; text-align: center;">
-              {% if u.is_superuser %}
-                <span style="color: #9ca3af; font-size: 0.85rem;">—</span>
-              {% elif u == request.user %}
-                <span style="color: #9ca3af; font-size: 0.85rem;">Vous</span>
-              {% else %}
-                <form method="post" action="{% url 'library:toggle_staff' u.id %}" style="display: inline;">
-                  {% csrf_token %}
-                  {% if u.is_staff %}
-                    <button type="submit"
-                            style="background: #ef4444; color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem;"
-                            onclick="return confirm('Retirer les droits de gestionnaire à {{ u.username }} ?')">
-                      Retirer
+              <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                {% if u.is_superuser %}
+                  <span style="color: #cbd5e1; font-size: 0.8rem;">Non modifiable</span>
+                {% elif u == request.user %}
+                  <span style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">(Vous)</span>
+                {% else %}
+                  <form method="post" action="{% url 'library:toggle_staff' u.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            style="background: {% if u.is_staff %}#64748b{% else %}var(--mint-green){% endif %}; color: white; border: none; padding: 0.45rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: 0.2s;"
+                            onclick="return confirm('Changer le rôle de {{ u.username }} ?')">
+                      {% if u.is_staff %}Rétrograder{% else %}Promouvoir{% endif %}
                     </button>
-                  {% else %}
-                    <button type="submit"
-                            style="background: var(--mint-green); color: white; border: none; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.85rem;"
-                            onclick="return confirm('Promouvoir {{ u.username }} comme gestionnaire ?')">
-                      Promouvoir
-                    </button>
-                  {% endif %}
-                </form>
-              {% endif %}
+                  </form>
+
+                  <a href="{% url 'library:delete_user' u.id %}" 
+                     style="background: #fee2e2; color: #ef4444; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; transition: 0.2s;"
+                     onclick="return confirm('🚨 Action irréversible !\nVoulez-vous vraiment supprimer définitivement le compte de {{ u.username }} ?')">
+                    🗑️
+                  </a>
+                {% endif %}
+              </div>
             </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  
-  <div style="margin-top: 1.5rem; padding: 1rem; background: #dbeafe; border-radius: 8px; color: #1e40af;">
-    <strong>ℹ️ Info :</strong> Les gestionnaires ont accès au tableau de bord admin, à la gestion des emprunts et peuvent marquer les livres comme rendus.
-    Seul le Super Admin peut promouvoir ou rétrograder les gestionnaires.
+
+  <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.8rem; padding: 1rem; background: #eff6ff; border-radius: 12px; color: #1e40af; font-size: 0.85rem; border: 1px solid #dbeafe;">
+    <span>ℹ️</span>
+    <p>Seuls les <strong>Super Admins</strong> peuvent gérer l'équipe. La suppression d'un utilisateur retire tous ses accès et son historique d'emprunt.</p>
   </div>
 </section>
 {% endblock %}

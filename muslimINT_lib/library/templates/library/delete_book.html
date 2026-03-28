@@ -1,0 +1,42 @@
+{% extends "library/base.html" %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
+    <a href="{% url 'library:book_detail' book.slug %}" style="color: var(--mint-green); text-decoration: none;">
+        ← Retour au livre
+    </a>
+
+    <div style="margin-top: 1.5rem; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h1 style="margin-top: 0; color: #c62828;">🗑️ Supprimer le livre</h1>
+
+        <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 8px; margin: 1.5rem 0;">
+            <strong>Attention :</strong> cette action est irréversible.
+        </div>
+
+        <p style="font-size: 1.05rem;">
+            Voulez-vous vraiment supprimer le livre
+            <strong>"{{ book.title }}"</strong> ?
+        </p>
+
+        <p style="color: #666;">
+            Auteur : {{ book.author }}<br>
+            {% if book.category %}Catégorie : {{ book.category.name }}<br>{% endif %}
+            Exemplaires disponibles : {{ book.available_copies }} / {{ book.total_copies }}
+        </p>
+
+        <form method="post" style="margin-top: 2rem;">
+            {% csrf_token %}
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="submit" style="background: #c62828; color: white; border: none; padding: 0.8rem 1.8rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    Confirmer la suppression
+                </button>
+
+                <a href="{% url 'library:book_detail' book.slug %}" style="background: #6c757d; color: white; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none;">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

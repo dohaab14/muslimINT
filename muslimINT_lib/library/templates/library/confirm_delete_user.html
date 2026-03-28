@@ -1,0 +1,18 @@
+{% extends "library/base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 4rem auto; background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <h2 style="color: #ef4444;">Supprimer l'utilisateur ?</h2>
+    <p style="margin: 1.5rem 0; color: #6b7280;">
+        Êtes-vous sûr de vouloir supprimer <strong>{{ target_user.username }}</strong> ?<br>
+        <small>Cette action est irréversible et supprimera son profil et son historique.</small>
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="background: #ef4444; color: white; border: none; padding: 0.8rem 2rem; border-radius: 10px; cursor: pointer; font-weight: 600;">
+            Confirmer la suppression
+        </button>
+        <a href="{% url 'library:manage_staff' %}" style="display: block; margin-top: 1rem; color: #64748b; text-decoration: none;">Annuler</a>
+    </form>
+</div>
+{% endblock %}

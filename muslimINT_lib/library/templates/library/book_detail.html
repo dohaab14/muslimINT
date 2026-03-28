@@ -62,6 +62,19 @@
         </div>
     </div>
 
+
+    {% if can_manage_books %}
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
+
+        <a href="{% url 'library:book_edit' book.slug %}" style="background: var(--deep-blue); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
+            ✏️ Modifier
+        </a>
+
+        <a href="{% url 'library:book_delete' book.slug %}" style="background: #c62828; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
+            🗑️ Supprimer
+        </a>
+    </div>
+    {% endif %}
     <!-- Description -->
     {% if book.description %}
         <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">

@@ -38,11 +38,6 @@
              style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
     </div>
     
-    <div style="margin-bottom: 1.5rem;">
-      <label for="student_id" style="display: block; margin-bottom: 0.4rem; font-weight: 600;">🎓 Numéro étudiant</label>
-      <input type="text" name="student_id" id="student_id" value="{{ profile.student_id }}"
-             style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
-    </div>
     
     <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
       Enregistrer les modifications
@@ -50,7 +45,7 @@
   </form>
   
   <div style="margin-top: 1.5rem; text-align: center;">
-    <a href="{% url 'library:password_reset' %}" style="color: var(--mint-green); font-weight: 500;">
+    <a href="{% url 'library:password_change' %}" style="color: var(--mint-green); font-weight: 500;">
       🔑 Changer mon mot de passe
     </a>
   </div>

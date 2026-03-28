@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - MuslimINT</title>
+    <title>Connexion - Maktaba'INT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,17 +12,14 @@
         :root {
             --mint-green: #2CB67D;
             --deep-blue: #0E223F;
-            --light-gray: #f5f6f7;
+            --soft-purple: #764ba2;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+            font-family: "Poppins", sans-serif;
+            /* TON DÉGRADÉ VIOLET */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -33,158 +30,104 @@
 
         .login-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            max-width: 900px;
+            max-width: 950px;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            animation: slideUp 0.6s ease;
+            grid-template-columns: 1.1fr 0.9fr;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .login-side {
-            background: linear-gradient(135deg, var(--deep-blue) 0%, #1a3a5f 100%);
+            background: linear-gradient(135deg, var(--deep-blue) 0%, #162e4d 100%);
             color: white;
-            padding: 3rem;
+            padding: 3.5rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-side::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 15s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .login-side-content {
-            position: relative;
-            z-index: 1;
             text-align: center;
         }
 
-        .login-side img {
-            height: 120px; /* ← augmenté */
-            max-width: 100%;
+        .logo-img {
+            height: 100px;
+            width: auto;
             margin-bottom: 1.5rem;
-            transition: transform 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
 
-        .login-side img:hover {
-            transform: scale(1.05);
+        .brand-name {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--mint-green);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
         }
 
         .login-side p {
             font-size: 1.1rem;
-            opacity: 0.9;
-            line-height: 1.6;
+            opacity: 0.85;
             margin-bottom: 2rem;
         }
 
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-
+        .feature-list { list-style: none; text-align: left; margin: 0 auto; max-width: 300px; }
         .feature-list li {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
             font-size: 0.95rem;
         }
 
         .feature-icon {
-            background: var(--mint-green);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            background: rgba(44, 182, 125, 0.2);
+            color: var(--mint-green);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            font-size: 1.1rem;
         }
 
-        .form-side {
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        .form-side { padding: 3.5rem; display: flex; flex-direction: column; }
 
-        .form-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        .form-header { margin-bottom: 2rem; text-align: center; }
+        .form-header h2 { color: var(--deep-blue); font-size: 1.8rem; }
+        .form-header p { color: #64748b; font-size: 0.9rem; }
 
-        .form-header h2 {
-            color: var(--deep-blue);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-header p {
-            color: #6b7280;
-            font-size: 0.95rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
+        .form-group { margin-bottom: 1.2rem; }
         .form-group label {
             display: block;
             color: var(--deep-blue);
             font-weight: 600;
             margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
-
+        .input-wrapper { position: relative; }
         .input-icon {
             position: absolute;
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.2rem;
-            color: #9ca3af;
+            color: #94a3b8;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.9rem 1rem 0.9rem 3rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            font-family: inherit;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
         }
 
         .form-group input:focus {
@@ -196,176 +139,120 @@
         .btn-login {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--mint-green) 0%, #24a46e 100%);
+            background: var(--mint-green);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: 0.3s;
             margin-top: 1rem;
         }
 
         .btn-login:hover {
+            background: #24a46e;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(44, 182, 125, 0.4);
+            box-shadow: 0 10px 20px rgba(44, 182, 125, 0.3);
         }
 
-        .messages {
-            margin-bottom: 1.5rem;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--mint-green);
-        }
-
-        .back-link {
+        .register-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
             text-align: center;
-            margin-top: 1.5rem;
         }
 
-        .back-link a {
-            color: var(--deep-blue);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .back-link a:hover {
+        .btn-register-link {
             color: var(--mint-green);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 0.5rem;
         }
 
-        @media (max-width: 768px) {
-            .login-container {
-                grid-template-columns: 1fr;
-            }
-            .login-side img {
-                height: 90px; /* un peu plus petit sur mobile */
-            }
-            .login-side {
-                padding: 2rem;
-            }
-            .form-side {
-                padding: 2rem;
-            }
+        .forgot-pass {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .back-link { margin-top: auto; text-align: center; padding-top: 1.5rem; }
+        .back-link a { color: #94a3b8; text-decoration: none; font-size: 0.85rem; }
+        .back-link a:hover { color: var(--deep-blue); }
+
+        @media (max-width: 850px) {
+            .login-container { grid-template-columns: 1fr; max-width: 450px; }
+            .login-side { padding: 2.5rem; }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <!-- Côté gauche - Information -->
         <div class="login-side">
             <div class="login-side-content">
-                <img src="{% static 'library/images/muslimint_logo.png' %}" alt="MuslimINT">
-                <p>Votre bibliothèque islamique en ligne</p>
+                <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                <div class="brand-name">Maktaba'INT</div>
+                <p>La bibliothèque de MuslimINT</p>
                 
                 <ul class="feature-list">
-                    <li>
-                        <span class="feature-icon">📚</span>
-                        <span>Accès à une collection de livres islamiques</span>
-                    </li>
-                    <li>
-                        <span class="feature-icon">📖</span>
-                        <span>Empruntez et gérez vos lectures facilement</span>
-                    </li>
-                    <li>
-                        <span class="feature-icon">🤝</span>
-                        <span>Partagez le savoir avec la communauté</span>
-                    </li>
+                    <li><span class="feature-icon">📚</span> Accès aux ouvrages</li>
+                    <li><span class="feature-icon">📖</span> Gestion des emprunts</li>
+                    <li><span class="feature-icon">🎓</span> Étudiants TSP & IMT BS</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Côté droit - Formulaire -->
         <div class="form-side">
             <div class="form-header">
-                <h2>Connexion</h2>
-                <p>Connectez-vous pour accéder à votre espace</p>
+                <h2>Bon retour</h2>
+                <p>Connectez-vous pour continuer</p>
             </div>
 
             {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for message in messages %}
+                    <div style="padding: 0.8rem; border-radius: 10px; margin-bottom: 1rem; font-size: 0.85rem; background: #fee2e2; color: #991b1b; text-align: center;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
 
             <form method="post">
                 {% csrf_token %}
-                
                 <div class="form-group">
-                    <label for="username">Nom d'utilisateur</label>
+                    <label>Nom d'utilisateur</label>
                     <div class="input-wrapper">
                         <span class="input-icon">👤</span>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            name="username" 
-                            required
-                            placeholder="Entrez votre nom d'utilisateur"
-                            autofocus
-                        >
+                        <input type="text" name="username" required placeholder="Votre pseudo" autofocus>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Mot de passe</label>
+                    <label>Mot de passe</label>
                     <div class="input-wrapper">
                         <span class="input-icon">🔒</span>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            required
-                            placeholder="Entrez votre mot de passe"
-                        >
+                        <input type="password" name="password" required placeholder="••••••••">
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login">
-                    Se connecter →
-                </button>
+                <button type="submit" class="btn-login">Se connecter →</button>
             </form>
 
-            <div style="text-align: center; margin-top: 1rem;">
-                <a href="{% url 'library:password_reset' %}" style="color: var(--mint-green); font-weight: 500; text-decoration: none;">
-                    🔑 Mot de passe oublié ?
+            <a href="{% url 'library:password_reset' %}" class="forgot-pass">Mot de passe oublié ?</a>
+
+            <div class="register-footer">
+                <p style="color: #64748b; font-size: 0.85rem;">Pas encore de compte ?</p>
+                <a href="{% url 'library:register' %}" class="btn-register-link">
+                    S'inscrire 
                 </a>
             </div>
 
             <div class="back-link">
-                <a href="{% url 'library:book_list' %}">← Retour à la bibliothèque</a>
+                <a href="{% url 'library:book_list' %}">← Retour à l'accueil</a>
             </div>
         </div>
     </div>

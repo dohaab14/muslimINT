@@ -1,11 +1,217 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Maktaba'INT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-green: #2CB67D;
+            --deep-blue: #0E223F;
+            --error-red: #ef4444;
+        }
 
-{% block content %}
-<h2>Créer un compte</h2>
-<p>Veuillez utiliser votre adresse e-mail académique (@telecom-sudparis.eu ou @imt-bs.eu).</p>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">S'inscrire</button>
-</form>
-{% endblock %}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            /* TON DÉGRADÉ VIOLET */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            max-width: 950px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .info-side {
+            background: linear-gradient(135deg, var(--deep-blue) 0%, #162e4d 100%);
+            color: white;
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .logo-img {
+            height: 90px;
+            width: auto;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .brand-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--mint-green);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .info-side p { font-size: 1rem; opacity: 0.85; margin-bottom: 2rem; }
+
+        .restriction-box {
+            background: rgba(255,255,255,0.07);
+            padding: 1.2rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--mint-green);
+            text-align: left;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .form-side { 
+            padding: 3rem; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Personnalisation de la scrollbar pour le formulaire */
+        .form-side::-webkit-scrollbar { width: 5px; }
+        .form-side::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .form-header { margin-bottom: 1.8rem; text-align: center; }
+        .form-header h2 { color: var(--deep-blue); font-size: 1.8rem; }
+        .form-header p { color: #64748b; font-size: 0.85rem; }
+
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group label {
+            display: block;
+            color: var(--deep-blue);
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--mint-green);
+            background: #f0fdf4;
+        }
+
+        .help-text { font-size: 0.75rem; color: #94a3b8; margin-top: 0.3rem; display: block; }
+        .error-list { color: var(--error-red); font-size: 0.75rem; list-style: none; margin-top: 0.4rem; font-weight: 500; }
+
+        .btn-register {
+            width: 100%;
+            padding: 1rem;
+            background: var(--mint-green);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-register:hover {
+            background: #24a46e;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(44, 182, 125, 0.2);
+        }
+
+        .login-footer {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .login-footer a { color: var(--mint-green); text-decoration: none; font-weight: 600; }
+        .login-footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 850px) {
+            .register-container { grid-template-columns: 1fr; max-width: 480px; }
+            .info-side { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="info-side">
+            <div class="info-side-content">
+                <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                <div class="brand-name">Maktaba'INT</div>
+                <p>Rejoignez la bibliothèque.</p>
+                
+                <div class="restriction-box">
+                    <strong style="color: var(--mint-green); display: block; margin-bottom: 0.3rem;">⚠️ Attention</strong>
+                    L'inscription est réservée aux mails :<br>
+                    • <strong>@telecom-sudparis.eu</strong><br>
+                    • <strong>@imt-bs.eu</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="form-header">
+                <h2>Créer un compte</h2>
+                <p>Inscrivez-vous pour emprunter vos premiers livres.</p>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="help-text">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                        <ul class="error-list">
+                            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn-register">S'inscrire</button>
+            </form>
+
+            <div class="login-footer">
+                Déjà un compte ? <a href="{% url 'library:login' %}">Connectez-vous</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

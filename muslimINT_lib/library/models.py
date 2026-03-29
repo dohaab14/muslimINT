@@ -21,9 +21,29 @@ class Author(models.Model):
 
 class Category(models.Model):
     """Modèle pour les catégories de livres"""
-    name = models.CharField(max_length=100, unique=True)
+    
+    # On définit la liste des choix ici
+    RELIGIOUS_CHOICES = [
+        ('coran', 'Coran et Sciences du Coran'),
+        ('hadith', 'Hadith'),
+        ('aqida', 'Aqida (Dogme)'),
+        ('fiqh', 'Fiqh (Jurisprudence)'),
+        ('siras', 'Siras (Vie des Prophètes)'),
+        ('histoires', 'Histoires Islamique'),
+        ('spiritualite', 'Spiritualité (Tazkiya)'),
+        ('langue_arabe', 'Langue Arabe'),
+        ('education', 'Éducation et Famille'),
+        ('pensee', 'Pensée Islamique'),
+    ]
+
+    name = models.CharField(
+        max_length=100, 
+        unique=True, 
+        choices=RELIGIOUS_CHOICES, 
+        verbose_name="Nom de la catégorie"
+    )
     description = models.TextField(blank=True, help_text="Description de la catégorie")
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(max_length=500, unique=True, blank=True)
     
     class Meta:
         ordering = ['name']
@@ -31,20 +51,19 @@ class Category(models.Model):
         verbose_name_plural = "Catégories"
     
     def __str__(self):
-        return self.name
-    
+        return dict(self.RELIGIOUS_CHOICES).get(self.name, self.name)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-
 class Book(models.Model):
     """Modèle pour les livres"""
     title = models.CharField(max_length=300, verbose_name="Titre")
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(max_length=500, unique=True, blank=True)
     author = models.CharField(max_length=200, blank=True, verbose_name="Auteur")
-    
+    edition = models.CharField(max_length=200, blank=True, verbose_name="Édition / Maison d'édition")
     category = models.ForeignKey(
         Category, 
         on_delete=models.SET_NULL, 

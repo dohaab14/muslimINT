@@ -66,7 +66,7 @@ class RegistrationForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author', 'category', 'description', 'isbn', 'total_copies', 'available_copies', 'cover_image']
+        fields = ['title', 'author', 'category', 'description', 'isbn', 'total_copies', 'available_copies', 'edition', 'cover_image']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }

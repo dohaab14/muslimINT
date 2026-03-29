@@ -206,6 +206,21 @@ footer {
 </style>
 </head>
 <body>
+  <div id="loading-overlay">
+  <div class="loader-container">
+    <div class="spinner"></div>
+    <p>Réveil du serveur MuslimINT...</p>
+    <span class="loader-subtext">Cela peut prendre jusqu'à 1 minute en cas d'inactivité prolongée.</span>
+  </div>
+</div>
+
+<script>
+  // Ce script cache le loader une fois que tout est chargé
+  window.addEventListener('load', function() {
+    const loader = document.getElementById('loading-overlay');
+    loader.style.display = 'none';
+  });
+</script>
 <header>
   <div class="header-content">
     <h1>

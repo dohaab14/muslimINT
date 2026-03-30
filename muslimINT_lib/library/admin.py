@@ -15,7 +15,8 @@ class BorrowerProfileInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = (BorrowerProfileInline,)
     list_display = BaseUserAdmin.list_display + ('active_loans_count',)
-    
+    readonly_fields = ()  # rien en lecture seule pour le superuser
+
     def active_loans_count(self, obj):
         count = Loan.objects.filter(borrower=obj, status='ongoing').count()
         if count > 0:
@@ -25,6 +26,32 @@ class UserAdmin(BaseUserAdmin):
             )
         return '—'
     active_loans_count.short_description = "Emprunts actifs"
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ()
+        return super().get_readonly_fields(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        return super().has_view_permission(request, obj)
+
+    def has_add_permission(self, request):
+        if request.user.is_superuser:
+            return True
+        return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        return super().has_delete_permission(request, obj)
+
 
 # Unregister and re-register User
 admin.site.unregister(User)

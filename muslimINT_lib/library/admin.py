@@ -9,13 +9,11 @@ from .models import Author, Category, Book, BorrowerProfile, Loan
 class BorrowerProfileInline(admin.StackedInline):
     model = BorrowerProfile
     can_delete = False
-    verbose_name_plural = 'Profil emprunteur'
-    fields = ('phone', 'student_id')
+    extra = 0
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (BorrowerProfileInline,)
+    inlines = [BorrowerProfileInline]
     list_display = BaseUserAdmin.list_display + ('active_loans_count',)
-    readonly_fields = ()  # rien en lecture seule pour le superuser
 
     def active_loans_count(self, obj):
         count = Loan.objects.filter(borrower=obj, status='ongoing').count()

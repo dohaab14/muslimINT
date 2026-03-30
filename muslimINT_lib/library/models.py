@@ -126,10 +126,10 @@ class Book(models.Model):
         return self.available_copies > 0
 
 
+
 class BorrowerProfile(models.Model):
-    """Profil étendu pour les emprunteurs"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=30, blank=True, verbose_name="Téléphone")
+    phone = models.CharField(max_length=20, blank=True)
     
     class Meta:
         verbose_name = "Profil emprunteur"

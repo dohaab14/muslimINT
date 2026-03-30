@@ -60,19 +60,22 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
 }
 
-# Bloc déjà présent (gardez-le)
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        # On passe au backend de base qui ne fait pas de post-processing complexe
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# 2. Compatibilité (Lignes à garder pour Cloudinary sur Render)
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# 3. Paramètre WhiteNoise à ajouter (pour éviter les erreurs de fichiers manquants)
+WHITENOISE_MANIFEST_STRICT = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

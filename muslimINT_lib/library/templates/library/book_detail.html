@@ -1,86 +1,116 @@
 {% extends "library/base.html" %}
+{% load static %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
-    <a href="{% url 'library:book_list' %}" style="color: var(--mint-green); text-decoration: none;">← Retour au catalogue</a>
+<div style="max-width: 900px; margin: 2rem auto; padding: 1rem; animation: fadeIn 0.5s ease-in-out;">
+    <a href="{% url 'library:book_list' %}" style="color: var(--mint-green); text-decoration: none; font-weight: 600;">← Retour au catalogue</a>
 
-    <div style="display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap;">
-        <!-- Image du livre -->
-        <div style="flex: 0 0 300px;">
+    <div style="display: flex; gap: 2.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <div style="flex: 0 0 300px; max-width: 100%;">
             {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" alt="Couverture de {{ book.title }}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <img src="{{ book.cover_image.url }}" alt="Couverture de {{ book.title }}" 
+                     style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            {% else %}
+                <div style="width: 100%; height: 400px; background: #f3f4f6; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af; border: 2px dashed #d1d5db;">
+                    <span style="font-size: 3rem; margin-bottom: 1rem;">📚</span>
+                    <p>Aucune couverture disponible</p>
+                </div>
             {% endif %}
         </div>
 
-        <!-- Infos du livre -->
         <div style="flex: 1; min-width: 250px;">
-            <h1 style="margin: 0 0 0.5rem;">{{ book.title }}</h1>
-            <p style="font-size: 1.1rem; color: #666;">
-                <strong>Auteur :</strong> {{ book.author }}
+            <h1 style="margin: 0 0 0.5rem; color: var(--deep-blue);">{{ book.title }}</h1>
+            <p style="font-size: 1.2rem; color: #555; margin-bottom: 1.5rem;">
+                <strong>Auteur :</strong> {{ book.author|default:"Non spécifié" }}
             </p>
 
-            {% if book.category %}
-                <p><strong>Catégorie :</strong> {{ book.category.name }}</p>
-            {% endif %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background: #fafafa; padding: 1rem; border-radius: 8px;">
+                {% if book.category %}
+                <div>
+                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Catégorie</span>
+                    <span style="font-weight: 600;">📁 {{ book.category.name }}</span>
+                </div>
+                {% endif %}
 
-            {% if book.isbn %}
-                <p><strong>ISBN :</strong> {{ book.isbn }}</p>
-            {% endif %}
+                {% if book.edition %}
+                <div>
+                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Édition</span>
+                    <span style="font-weight: 600;">🏢 {{ book.edition }}</span>
+                </div>
+                {% endif %}
 
-            <!-- Disponibilité -->
+                {% if book.isbn %}
+                <div>
+                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">ISBN</span>
+                    <span style="font-weight: 500;"> {{ book.isbn }}</span>
+                </div>
+                {% endif %}
+
+                <div>
+                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Emprunts</span>
+                    <span style="font-weight: 500;">📊 {{ book.loans.count }} fois</span>
+                </div>
+            </div>
+
             {% if book.available_copies > 0 %}
-                <div style="background: #d4edda; color: #155724; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="background: #d4edda; color: #155724; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #28a745;">
                     ✅ <strong>Disponible</strong> — {{ book.available_copies }} exemplaire{{ book.available_copies|pluralize }} sur {{ book.total_copies }}
                 </div>
             {% else %}
-                <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc3545;">
                     ❌ <strong>Indisponible</strong> — Tous les exemplaires sont empruntés
                 </div>
             {% endif %}
 
-            <!-- Nombre d'emprunts -->
-            <p><strong>📊 Nombre d'emprunts :</strong> {{ book.loans.count }}</p>
-
-            <!-- Avis spirituel -->
-            {% if book.spiritual_review %}
-                <p><strong>🕌 Avis spirituel :</strong> {{ book.spiritual_review }}</p>
-            {% endif %}
-
-            <!-- Bouton emprunter -->
             {% if user.is_authenticated and book.available_copies > 0 %}
                 <form method="post" action="{% url 'library:borrow_book' book.slug %}">
                     {% csrf_token %}
-                    <button type="submit" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 1rem;">
+                    <button type="submit" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; width: 100%;">
                         📚 Emprunter ce livre
                     </button>
                 </form>
             {% elif not user.is_authenticated %}
-                <a href="{% url 'library:login' %}" style="display: inline-block; background: var(--deep-blue); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; margin-top: 1rem;">
+                <a href="{% url 'library:login' %}" style="display: block; text-align: center; background: var(--deep-blue); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; margin-top: 1rem;">
                     🔐 Se connecter pour emprunter
                 </a>
             {% endif %}
         </div>
     </div>
 
+    {% if book.spiritual_review %}
+        <div style="margin-top: 2.5rem; background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid #b2f5ea; position: relative;">
+            <div style="display: inline-block; background: var(--mint-green); color: white; padding: 2px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">
+                L'avis du Pôle Spiritualité 🕌
+            </div>
+            <p style="font-style: italic; color: #2d3748; line-height: 1.6; font-size: 1.05rem; margin: 0;">
+                "{{ book.spiritual_review }}"
+            </p>
+        </div>
+    {% endif %}
 
     {% if can_manage_books %}
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
-
         <a href="{% url 'library:book_edit' book.slug %}" style="background: var(--deep-blue); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
             ✏️ Modifier
         </a>
-
         <a href="{% url 'library:book_delete' book.slug %}" style="background: #c62828; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
             🗑️ Supprimer
         </a>
     </div>
     {% endif %}
-    <!-- Description -->
+
     {% if book.description %}
-        <div style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
-            <h2>📝 Description</h2>
-            <p>{{ book.description|linebreaks }}</p>
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #fff; border-radius: 8px; border: 1px solid #eee;">
+            <h2 style="margin-top: 0; font-size: 1.3rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 0.5rem;">📝 Description</h2>
+            <p style="line-height: 1.6; color: #333;">{{ book.description|linebreaks }}</p>
         </div>
     {% endif %}
 </div>
+
+<style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 {% endblock %}

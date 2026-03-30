@@ -66,10 +66,7 @@ class RegistrationForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author', 'category', 'description', 'isbn', 'total_copies', 'available_copies', 'edition', 'cover_image']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-        }
+        fields = ['title', 'author', 'category', 'description','spiritual_review', 'isbn', 'total_copies', 'available_copies', 'edition', 'cover_image']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,3 +75,5 @@ class BookForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
             # On peut aussi ajouter des placeholders personnalisés
             field.widget.attrs['placeholder'] = f"Entrez le/la {field.label.lower()}"
+        self.fields['spiritual_review'].widget.attrs['rows'] = 4
+        self.fields['description'].widget.attrs['rows'] = 5

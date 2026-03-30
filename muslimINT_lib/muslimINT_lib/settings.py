@@ -41,10 +41,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # 2. Configurez le gestionnaire de stockage (obligatoire en Django 5.x)
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 # Application definition

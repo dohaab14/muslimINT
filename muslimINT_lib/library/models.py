@@ -21,8 +21,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     """Modèle pour les catégories de livres"""
-    
-    # On définit la liste des choix ici
+
     RELIGIOUS_CHOICES = [
         ('coran', 'Coran et Sciences du Coran'),
         ('hadith', 'Hadith'),
@@ -37,25 +36,45 @@ class Category(models.Model):
     ]
 
     name = models.CharField(
-        max_length=100, 
-        unique=True, 
-        choices=RELIGIOUS_CHOICES, 
-        verbose_name="Nom de la catégorie"
+        max_length=100,
+        unique=True,
+        verbose_name="Nom interne"
     )
-    description = models.TextField(blank=True, help_text="Description de la catégorie")
-    slug = models.SlugField(max_length=500, unique=True, blank=True)
-    
+    display_name = models.CharField(
+        max_length=150,
+        blank=True,
+        verbose_name="Nom affiché"
+    )
+    description = models.TextField(
+        blank=True,
+        help_text="Description de la catégorie"
+    )
+    slug = models.SlugField(
+        max_length=500,
+        unique=True,
+        blank=True
+    )
+    is_predefined = models.BooleanField(
+        default=False,
+        verbose_name="Catégorie par défaut"
+    )
+
     class Meta:
-        ordering = ['name']
+        ordering = ['display_name', 'name']
         verbose_name = "Catégorie"
         verbose_name_plural = "Catégories"
-    
+
     def __str__(self):
-        return dict(self.RELIGIOUS_CHOICES).get(self.name, self.name)
+        return self.display_name or self.name
 
     def save(self, *args, **kwargs):
+        if not self.display_name:
+            predefined_map = dict(self.RELIGIOUS_CHOICES)
+            self.display_name = predefined_map.get(self.name, self.name)
+
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.display_name or self.name)
+
         super().save(*args, **kwargs)
 
 class Book(models.Model):

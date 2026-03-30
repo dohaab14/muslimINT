@@ -72,10 +72,20 @@ class AuthorAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'book_count', 'slug')
-    search_fields = ('name',)
-    prepopulated_fields = {'slug': ('name',)}
-    
+    list_display = ('display_name', 'name', 'is_predefined', 'book_count', 'slug')
+    search_fields = ('name', 'display_name', 'description')
+    list_filter = ('is_predefined',)
+    prepopulated_fields = {'slug': ('display_name',)}
+
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('name', 'display_name', 'description')
+        }),
+        ('Configuration', {
+            'fields': ('is_predefined', 'slug')
+        }),
+    )
+
     def book_count(self, obj):
         count = obj.books.count()
         if count > 0:

@@ -15,11 +15,14 @@
             --soft-purple: #764ba2;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: "Poppins", sans-serif;
-            /* TON DÉGRADÉ VIOLET */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -31,7 +34,7 @@
         .login-container {
             background: white;
             border-radius: 24px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
             overflow: hidden;
             max-width: 950px;
             width: 100%;
@@ -55,10 +58,29 @@
             text-align: center;
         }
 
+        .login-side-content {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .logo-wrap {
+            width: 100%;
+            max-width: 140px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .logo-img {
-            height: 100px;
+            max-width: 100%;
+            max-height: 100%;
             width: auto;
-            margin-bottom: 1.5rem;
+            height: auto;
+            object-fit: contain;
+            display: block;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
 
@@ -68,15 +90,22 @@
             color: var(--mint-green);
             margin-bottom: 0.5rem;
             letter-spacing: -1px;
+            line-height: 1.1;
         }
 
         .login-side p {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             opacity: 0.85;
             margin-bottom: 2rem;
         }
 
-        .feature-list { list-style: none; text-align: left; margin: 0 auto; max-width: 300px; }
+        .feature-list {
+            list-style: none;
+            text-align: left;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
         .feature-list li {
             display: flex;
             align-items: center;
@@ -95,15 +124,46 @@
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
+            flex-shrink: 0;
         }
 
-        .form-side { padding: 3.5rem; display: flex; flex-direction: column; }
+        .form-side {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-        .form-header { margin-bottom: 2rem; text-align: center; }
-        .form-header h2 { color: var(--deep-blue); font-size: 1.8rem; }
-        .form-header p { color: #64748b; font-size: 0.9rem; }
+        .form-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
 
-        .form-group { margin-bottom: 1.2rem; }
+        .form-header h2 {
+            color: var(--deep-blue);
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-header p {
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+
+        .message-box {
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            background: #fee2e2;
+            color: #991b1b;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
         .form-group label {
             display: block;
             color: var(--deep-blue);
@@ -112,22 +172,27 @@
             font-size: 0.85rem;
         }
 
-        .input-wrapper { position: relative; }
+        .input-wrapper {
+            position: relative;
+        }
+
         .input-icon {
             position: absolute;
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
+            pointer-events: none;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 0.95rem;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         .form-group input:focus {
@@ -146,7 +211,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.3s ease;
             margin-top: 1rem;
         }
 
@@ -154,22 +219,6 @@
             background: #24a46e;
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(44, 182, 125, 0.3);
-        }
-
-        .register-footer {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #f1f5f9;
-            text-align: center;
-        }
-
-        .btn-register-link {
-            color: var(--mint-green);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: inline-block;
-            margin-top: 0.5rem;
         }
 
         .forgot-pass {
@@ -181,13 +230,78 @@
             text-decoration: none;
         }
 
-        .back-link { margin-top: auto; text-align: center; padding-top: 1.5rem; }
-        .back-link a { color: #94a3b8; text-decoration: none; font-size: 0.85rem; }
-        .back-link a:hover { color: var(--deep-blue); }
+        .register-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+        }
+
+        .register-footer p {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .btn-register-link {
+            color: var(--mint-green);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .back-link {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .back-link a:hover {
+            color: var(--deep-blue);
+        }
 
         @media (max-width: 850px) {
-            .login-container { grid-template-columns: 1fr; max-width: 450px; }
-            .login-side { padding: 2.5rem; }
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 460px;
+            }
+
+            .login-side {
+                padding: 2.2rem 1.8rem;
+            }
+
+            .form-side {
+                padding: 2rem 1.5rem;
+            }
+
+            .brand-name {
+                font-size: 2rem;
+            }
+
+            .logo-wrap {
+                max-width: 110px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+
+            .login-container {
+                border-radius: 18px;
+            }
+
+            .brand-name {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
@@ -195,10 +309,13 @@
     <div class="login-container">
         <div class="login-side">
             <div class="login-side-content">
-                <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                <div class="logo-wrap">
+                    <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                </div>
+
                 <div class="brand-name">Maktaba'INT</div>
                 <p>La bibliothèque de MuslimINT</p>
-                
+
                 <ul class="feature-list">
                     <li><span class="feature-icon">📚</span> Accès aux ouvrages</li>
                     <li><span class="feature-icon">📖</span> Gestion des emprunts</li>
@@ -215,7 +332,7 @@
 
             {% if messages %}
                 {% for message in messages %}
-                    <div style="padding: 0.8rem; border-radius: 10px; margin-bottom: 1rem; font-size: 0.85rem; background: #fee2e2; color: #991b1b; text-align: center;">
+                    <div class="message-box">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -223,6 +340,7 @@
 
             <form method="post">
                 {% csrf_token %}
+
                 <div class="form-group">
                     <label>Nom d'utilisateur</label>
                     <div class="input-wrapper">
@@ -245,10 +363,8 @@
             <a href="{% url 'library:password_reset' %}" class="forgot-pass">Mot de passe oublié ?</a>
 
             <div class="register-footer">
-                <p style="color: #64748b; font-size: 0.85rem;">Pas encore de compte ?</p>
-                <a href="{% url 'library:register' %}" class="btn-register-link">
-                    S'inscrire 
-                </a>
+                <p>Pas encore de compte ?</p>
+                <a href="{% url 'library:register' %}" class="btn-register-link">S'inscrire</a>
             </div>
 
             <div class="back-link">

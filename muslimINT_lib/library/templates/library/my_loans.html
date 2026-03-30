@@ -6,7 +6,6 @@
     <p class="subtitle">Gérez vos emprunts et découvrez votre historique</p>
   </div>
 
-  <!-- Statistiques rapides -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">📚</div>
@@ -15,13 +14,15 @@
         <span class="stat-label">Livre{{ ongoing_count|pluralize }} en cours</span>
       </div>
     </div>
-    <div class="stat-card">
+
+    <div class="stat-card success">
       <div class="stat-icon">✅</div>
       <div class="stat-info">
         <span class="stat-number">{{ returned_count }}</span>
         <span class="stat-label">Livre{{ returned_count|pluralize }} rendu{{ returned_count|pluralize }}</span>
       </div>
     </div>
+
     <div class="stat-card alert">
       <div class="stat-icon">⚠️</div>
       <div class="stat-info">
@@ -31,37 +32,44 @@
     </div>
   </div>
 
-  <!-- Onglets -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('ongoing')">En cours</button>
-    <button class="tab-btn" onclick="showTab('history')">Historique</button>
+    <button class="tab-btn active" type="button" onclick="showTab(event, 'ongoing')">En cours</button>
+    <button class="tab-btn" type="button" onclick="showTab(event, 'history')">Historique</button>
   </div>
 
-  <!-- Emprunts en cours -->
   <div id="ongoing-tab" class="tab-content active">
     <h3>Livres actuellement empruntés</h3>
+
     {% if ongoing_loans %}
       <div class="loans-list">
         {% for loan in ongoing_loans %}
           <div class="loan-card {% if loan.due_date < now %}overdue{% endif %}">
             <div class="loan-main">
               <div class="book-details">
-                <h4><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></h4>
+                <h4>
+                  <a href="{% url 'library:book_detail' loan.book.slug %}" class="book-link">
+                    {{ loan.book.title }}
+                  </a>
+                </h4>
+
                 {% if loan.book.author %}
                   <p class="author">par {{ loan.book.author }}</p>
                 {% endif %}
+
                 <p class="description">{{ loan.book.description|truncatewords:15 }}</p>
               </div>
-              
+
               <div class="loan-meta">
                 <div class="date-info">
                   <span class="label">Emprunté le</span>
                   <span class="date">{{ loan.borrowed_at|date:"d/m/Y" }}</span>
                 </div>
+
                 <div class="date-info">
                   <span class="label">À rendre avant le</span>
                   <span class="date due">{{ loan.due_date|date:"d/m/Y" }}</span>
                 </div>
+
                 <div class="countdown">
                   {% if loan.due_date < now %}
                     <span class="status-badge overdue">⚠️ En retard</span>
@@ -73,7 +81,7 @@
                 </div>
               </div>
             </div>
-            
+
             {% if loan.due_date < now %}
               <div class="alert-message">
                 ⚠️ Ce livre est en retard ! Merci de le retourner au plus vite.
@@ -86,67 +94,74 @@
       <div class="empty-state">
         <div class="empty-icon">📚</div>
         <p>Vous n'avez aucun emprunt en cours</p>
-        <a href="{% url 'library:book_list' %}" class="btn">Découvrir la bibliothèque</a>
+        <a href="{% url 'library:book_list' %}" class="btn primary-btn">Découvrir la bibliothèque</a>
       </div>
     {% endif %}
   </div>
 
-  <!-- Historique -->
   <div id="history-tab" class="tab-content">
     <h3>Historique de vos emprunts</h3>
+
     {% if history_loans %}
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Livre</th>
-            <th>Emprunté le</th>
-            <th>Rendu le</th>
-            <th>Durée</th>
-            <th>Statut</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for loan in history_loans %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
             <tr>
-              <td class="book-title">
-                <strong><a href="{% url 'library:book_detail' loan.book.slug %}" style="color:inherit;text-decoration:none;">{{ loan.book.title }}</a></strong>
-                {% if loan.book.author %}
-                  <br><small class="author-small">{{ loan.book.author }}</small>
-                {% endif %}
-              </td>
-              <td>{{ loan.borrowed_at|date:"d/m/Y" }}</td>
-              <td>
-                {% if loan.returned_at %}
-                  {{ loan.returned_at|date:"d/m/Y" }}
-                {% else %}
-                  -
-                {% endif %}
-              </td>
-              <td>
-                {% if loan.returned_at %}
-                  {{ loan.returned_at|timesince:loan.borrowed_at }}
-                {% else %}
-                  -
-                {% endif %}
-              </td>
-              <td>
-                {% if loan.status == 'returned' %}
-                  <span class="badge badge-returned">✓ Rendu</span>
-                {% elif loan.due_date < now %}
-                  <span class="badge badge-overdue">⚠️ En retard</span>
-                {% else %}
-                  <span class="badge badge-ongoing">📖 En cours</span>
-                {% endif %}
-              </td>
+              <th>Livre</th>
+              <th>Emprunté le</th>
+              <th>Rendu le</th>
+              <th>Durée</th>
+              <th>Statut</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for loan in history_loans %}
+              <tr>
+                <td class="book-title-cell">
+                  <strong>
+                    <a href="{% url 'library:book_detail' loan.book.slug %}" class="book-link">
+                      {{ loan.book.title }}
+                    </a>
+                  </strong>
+                  {% if loan.book.author %}
+                    <br>
+                    <small class="author-small">{{ loan.book.author }}</small>
+                  {% endif %}
+                </td>
+                <td>{{ loan.borrowed_at|date:"d/m/Y" }}</td>
+                <td>
+                  {% if loan.returned_at %}
+                    {{ loan.returned_at|date:"d/m/Y" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if loan.returned_at %}
+                    {{ loan.returned_at|timesince:loan.borrowed_at }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if loan.status == 'returned' %}
+                    <span class="badge badge-returned">✓ Rendu</span>
+                  {% elif loan.due_date < now %}
+                    <span class="badge badge-overdue">⚠️ En retard</span>
+                  {% else %}
+                    <span class="badge badge-ongoing">📖 En cours</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
       <div class="empty-state">
         <div class="empty-icon">📖</div>
         <p>Votre historique de lecture est vide</p>
-        <p class="small-text">Commencez à emprunter des livres pour construire votre bibliothèque !</p>
+        <p class="small-text">Commencez à emprunter des livres pour construire votre bibliothèque.</p>
       </div>
     {% endif %}
   </div>
@@ -154,7 +169,12 @@
 
 <style>
 .user-dashboard {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
   animation: fadeIn 0.6s ease-in-out;
+  box-sizing: border-box;
 }
 
 @keyframes fadeIn {
@@ -178,27 +198,26 @@
   font-size: 1rem;
 }
 
-/* Statistiques */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
 .stat-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  padding: 1.4rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
-.stat-card:nth-child(2) {
+.stat-card.success {
   background: linear-gradient(135deg, #2CB67D 0%, #24a46e 100%);
 }
 
@@ -211,7 +230,8 @@
 }
 
 .stat-icon {
-  font-size: 2.5rem;
+  font-size: 2.3rem;
+  line-height: 1;
 }
 
 .stat-info {
@@ -226,29 +246,29 @@
 }
 
 .stat-label {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-top: 0.3rem;
+  font-size: 0.92rem;
+  opacity: 0.95;
+  margin-top: 0.35rem;
 }
 
-/* Onglets */
 .tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
   border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
   background: none;
   border: none;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 1.4rem;
   font-size: 1rem;
   font-weight: 600;
   color: #6b7280;
   cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
 .tab-btn:hover {
@@ -266,7 +286,7 @@
 
 .tab-content.active {
   display: block;
-  animation: fadeIn 0.4s ease-in-out;
+  animation: fadeIn 0.35s ease-in-out;
 }
 
 .tab-content h3 {
@@ -275,25 +295,24 @@
   font-size: 1.3rem;
 }
 
-/* Cartes de prêt */
 .loans-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .loan-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 14px;
   border-left: 5px solid var(--mint-green);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .loan-card:hover {
-  transform: translateX(5px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .loan-card.overdue {
@@ -303,15 +322,29 @@
 
 .loan-main {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 2rem;
-  padding: 1.5rem;
+  padding: 1.4rem;
+}
+
+.book-details {
+  min-width: 0;
 }
 
 .book-details h4 {
   color: var(--deep-blue);
-  font-size: 1.3rem;
-  margin-bottom: 0.3rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.35;
+}
+
+.book-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-link:hover {
+  color: var(--mint-green);
 }
 
 .author {
@@ -323,8 +356,9 @@
 
 .description {
   color: #374151;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  word-break: break-word;
 }
 
 .loan-meta {
@@ -360,7 +394,7 @@
 
 .status-badge {
   display: inline-block;
-  padding: 0.4rem 1rem;
+  padding: 0.45rem 1rem;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -380,19 +414,23 @@
 .alert-message {
   background: #fef2f2;
   border-top: 1px solid #fecaca;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.4rem;
   color: #991b1b;
   font-weight: 600;
   text-align: center;
 }
 
-/* Tableau historique */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+}
+
 .history-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   background: white;
-  border-radius: 12px;
-  overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -407,19 +445,20 @@
   font-weight: 600;
   font-size: 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .history-table td {
   padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
 }
 
 .history-table tbody tr:hover {
   background: #f9fafb;
 }
 
-.book-title strong {
+.book-title-cell strong {
   color: var(--deep-blue);
   font-size: 1rem;
 }
@@ -431,9 +470,9 @@
 
 .badge {
   display: inline-block;
-  padding: 0.3rem 0.8rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -452,7 +491,6 @@
   color: #991b1b;
 }
 
-/* État vide */
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -475,54 +513,51 @@
   color: #9ca3af;
 }
 
-/* Forcer la largeur complète pour cette page */
-.user-dashboard {
-  margin: -1.5rem;
-  padding: 2rem;
-  max-width: 100%;
+.primary-btn {
+  display: inline-block;
+  background: var(--mint-green);
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.3rem;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-  .loan-main {
+  .user-dashboard {
+    padding: 1.5rem 1rem;
+  }
+
+  .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
+  .loan-main {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
   .loan-meta {
     align-items: flex-start;
     text-align: left;
   }
-  
-  .history-table {
-    font-size: 0.85rem;
-  }
-  
-  .history-table th,
-  .history-table td {
-    padding: 0.6rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
+
+  .dashboard-header h2 {
+    font-size: 1.7rem;
   }
 }
 </style>
 
 <script>
-function showTab(tabName) {
-  // Masquer tous les onglets
+function showTab(event, tabName) {
   const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.classList.remove('active'));
-  
-  // Retirer l'état actif de tous les boutons
   const buttons = document.querySelectorAll('.tab-btn');
+
+  tabs.forEach(tab => tab.classList.remove('active'));
   buttons.forEach(btn => btn.classList.remove('active'));
-  
-  // Afficher l'onglet sélectionné
+
   document.getElementById(tabName + '-tab').classList.add('active');
-  
-  // Activer le bouton correspondant
-  event.target.classList.add('active');
+  event.currentTarget.classList.add('active');
 }
 </script>
 {% endblock %}

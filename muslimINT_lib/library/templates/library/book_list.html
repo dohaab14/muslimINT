@@ -7,7 +7,6 @@
     <h3 class="subtitle">La bibliothèque communautaire de Muslim'INT</h3>
     <p class="subtitle">Découvre, emprunte et partage la connaissance</p>
     
-    <!-- Stats rapides -->
     <div class="quick-stats">
       <span class="stat">{{ total_books }} livre{{ total_books|pluralize }}</span>
       <span class="separator">•</span>
@@ -15,10 +14,8 @@
     </div>
   </div>
 
-  <!-- Barre de recherche et filtres -->
   <div class="search-container">
     <form method="get" class="search-form" id="searchForm">
-      <!-- Recherche principale -->
       <div class="search-main">
         <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
@@ -36,7 +33,6 @@
         <button type="submit" class="btn search-btn">Rechercher</button>
       </div>
 
-      <!-- Filtres avancés -->
       <div class="filters-toggle">
         <button type="button" class="toggle-filters-btn" onclick="toggleFilters()">
           <span id="filterIcon">⚙️</span> Filtres avancés
@@ -46,7 +42,6 @@
 
       <div class="advanced-filters" id="advancedFilters">
         <div class="filters-grid">
-          <!-- Filtre par catégorie -->
           <div class="filter-group">
             <label for="category">📁 Catégorie</label>
             <select name="category" id="category" onchange="this.form.submit()">
@@ -59,9 +54,8 @@
             </select>
           </div>
 
-          <!-- Filtre par auteur -->
           <div class="filter-group">
-            <label for="author">✍️ Auteur</label>
+            <label for="author">Auteur</label>
             <select name="author" id="author" onchange="this.form.submit()">
               <option value="">Tous les auteurs</option>
               {% for author in all_authors %}
@@ -72,9 +66,20 @@
             </select>
           </div>
 
-          <!-- Filtre par disponibilité -->
           <div class="filter-group">
-            <label for="availability">📊 Disponibilité</label>
+            <label for="edition">🏢 Édition</label>
+            <select name="edition" id="edition" onchange="this.form.submit()">
+              <option value="">Toutes les éditions</option>
+              {% for edition in all_editions %}
+                <option value="{{ edition }}" {% if selected_edition == edition %}selected{% endif %}>
+                  {{ edition }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="availability">Disponibilité</label>
             <select name="availability" id="availability" onchange="this.form.submit()">
               <option value="">Tous les livres</option>
               <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>
@@ -86,7 +91,6 @@
             </select>
           </div>
 
-          <!-- Tri -->
           <div class="filter-group">
             <label for="sort">🔀 Trier par</label>
             <select name="sort" id="sort" onchange="this.form.submit()">
@@ -109,8 +113,7 @@
           </div>
         </div>
 
-        <!-- Bouton réinitialiser -->
-        {% if search_query or selected_category or selected_author or selected_availability or selected_sort != 'title' %}
+        {% if search_query or selected_category or selected_author or selected_edition or selected_availability or selected_sort != 'title' %}
           <div class="filter-actions">
             <a href="{% url 'library:book_list' %}" class="btn btn-reset">
               🔄 Réinitialiser tous les filtres
@@ -120,8 +123,7 @@
       </div>
     </form>
     
-    <!-- Résultats de recherche -->
-    {% if search_query or selected_category or selected_author or selected_availability %}
+    {% if search_query or selected_category or selected_author or selected_edition or selected_availability %}
       <div class="search-results">
         <p>
           <strong>{{ books|length }}</strong> résultat{{ books|length|pluralize }} trouvé{{ books|length|pluralize }}
@@ -134,12 +136,14 @@
           {% if selected_author %}
             par <strong>{{ selected_author }}</strong>
           {% endif %}
+          {% if selected_edition %}
+            — édition <strong>{{ selected_edition }}</strong>
+          {% endif %}
         </p>
       </div>
     {% endif %}
   </div>
 
-  <!-- Liste des livres -->
   <div class="book-grid">
     {% for book in books %}
       <a href="{% url 'library:book_detail' book.slug %}" class="book-card-link" style="text-decoration:none;color:inherit;">
@@ -156,6 +160,10 @@
           <h3>{{ book.title }}</h3>
           {% if book.author %}
             <p class="author">✍️ {{ book.author }}</p>
+          {% endif %}
+
+          {% if book.edition %}
+            <p class="author">🏢 {{ book.edition }}</p>
           {% endif %}
           
           {% if book.description %}
@@ -192,7 +200,7 @@
       <div class="empty-state">
         <div class="empty-icon">📚</div>
         <p>Aucun livre trouvé</p>
-        {% if search_query or selected_category or selected_author %}
+        {% if search_query or selected_category or selected_author or selected_edition %}
           <p class="empty-subtext">Essayez avec d'autres filtres ou mots-clés</p>
           <a href="{% url 'library:book_list' %}" class="btn">Réinitialiser la recherche</a>
         {% else %}
@@ -202,14 +210,13 @@
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
   {% if is_paginated %}
     <div class="pagination">
       {% if page_obj.has_previous %}
-        <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+        <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_edition %}&edition={{ selected_edition }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
           « Première
         </a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_edition %}&edition={{ selected_edition }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
           ‹ Précédent
         </a>
       {% endif %}
@@ -219,10 +226,10 @@
       </span>
       
       {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_edition %}&edition={{ selected_edition }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
           Suivant ›
         </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_edition %}&edition={{ selected_edition }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}" class="page-btn">
           Dernière »
         </a>
       {% endif %}
@@ -279,7 +286,6 @@
   color: #d1d5db;
 }
 
-/* Recherche */
 .search-container {
   margin-bottom: 2rem;
 }
@@ -354,7 +360,6 @@
   white-space: nowrap;
 }
 
-/* Filtres */
 .filters-toggle {
   text-align: center;
   margin-bottom: 1rem;
@@ -473,7 +478,6 @@
   margin: 0;
 }
 
-/* Grille de livres */
 .book-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -609,7 +613,6 @@
   opacity: 0.6;
 }
 
-/* État vide */
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;
@@ -637,7 +640,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -671,7 +673,6 @@
   padding: 0 1rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .header h2 {
     font-size: 1.8rem;
@@ -696,7 +697,6 @@
 </style>
 
 <script>
-// Toggle filtres avancés
 function toggleFilters() {
   const filters = document.getElementById('advancedFilters');
   const icon = document.getElementById('filterIcon');
@@ -710,19 +710,18 @@ function toggleFilters() {
   }
 }
 
-// Clear search input
 function clearSearch() {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchForm').submit();
 }
 
-// Afficher le nombre de filtres actifs
 document.addEventListener('DOMContentLoaded', function() {
   const params = new URLSearchParams(window.location.search);
   let activeFilters = 0;
   
   if (params.get('category')) activeFilters++;
   if (params.get('author')) activeFilters++;
+  if (params.get('edition')) activeFilters++;
   if (params.get('availability')) activeFilters++;
   if (params.get('sort') && params.get('sort') !== 'title') activeFilters++;
   
@@ -731,7 +730,6 @@ document.addEventListener('DOMContentLoaded', function() {
     filterCount.textContent = activeFilters;
     filterCount.style.display = 'inline-block';
     
-    // Auto-ouvrir les filtres si des filtres sont actifs
     document.getElementById('advancedFilters').classList.add('active');
     document.getElementById('filterIcon').textContent = '✕';
   }

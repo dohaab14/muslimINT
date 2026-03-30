@@ -15,11 +15,14 @@
             --error-red: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: "Poppins", sans-serif;
-            /* TON DÉGRADÉ VIOLET */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -31,7 +34,7 @@
         .register-container {
             background: white;
             border-radius: 24px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
             overflow: hidden;
             max-width: 950px;
             width: 100%;
@@ -55,10 +58,29 @@
             text-align: center;
         }
 
+        .info-side-content {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .logo-wrap {
+            width: 100%;
+            max-width: 130px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .logo-img {
-            height: 90px;
+            max-width: 100%;
+            max-height: 100%;
             width: auto;
-            margin-bottom: 1.5rem;
+            height: auto;
+            object-fit: contain;
+            display: block;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
 
@@ -68,9 +90,14 @@
             color: var(--mint-green);
             margin-bottom: 0.5rem;
             letter-spacing: -1px;
+            line-height: 1.1;
         }
 
-        .info-side p { font-size: 1rem; opacity: 0.85; margin-bottom: 2rem; }
+        .info-side p {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-bottom: 2rem;
+        }
 
         .restriction-box {
             background: rgba(255,255,255,0.07);
@@ -79,52 +106,97 @@
             border-left: 4px solid var(--mint-green);
             text-align: left;
             font-size: 0.85rem;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        .form-side { 
-            padding: 3rem; 
-            max-height: 90vh; 
-            overflow-y: auto; 
+        .restriction-title {
+            color: var(--mint-green);
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-side {
+            padding: 3rem;
+            max-height: 90vh;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
-        /* Personnalisation de la scrollbar pour le formulaire */
-        .form-side::-webkit-scrollbar { width: 5px; }
-        .form-side::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .form-side::-webkit-scrollbar {
+            width: 6px;
+        }
 
-        .form-header { margin-bottom: 1.8rem; text-align: center; }
-        .form-header h2 { color: var(--deep-blue); font-size: 1.8rem; }
-        .form-header p { color: #64748b; font-size: 0.85rem; }
+        .form-side::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
 
-        .form-group { margin-bottom: 1.1rem; }
+        .form-header {
+            margin-bottom: 1.8rem;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            color: var(--deep-blue);
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-header p {
+            color: #64748b;
+            font-size: 0.88rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.1rem;
+        }
+
         .form-group label {
             display: block;
             color: var(--deep-blue);
             font-weight: 600;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.45rem;
             font-size: 0.85rem;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 0.8rem 1rem;
+            max-width: 100%;
+            padding: 0.85rem 1rem;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            font-size: 0.92rem;
+            transition: 0.2s ease;
             font-family: inherit;
+            background: white;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--mint-green);
             background: #f0fdf4;
         }
 
-        .help-text { font-size: 0.75rem; color: #94a3b8; margin-top: 0.3rem; display: block; }
-        .error-list { color: var(--error-red); font-size: 0.75rem; list-style: none; margin-top: 0.4rem; font-weight: 500; }
+        .help-text {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.3rem;
+            display: block;
+        }
+
+        .error-list {
+            color: var(--error-red);
+            font-size: 0.78rem;
+            list-style: none;
+            margin-top: 0.4rem;
+            font-weight: 500;
+            padding-left: 0;
+        }
 
         .btn-register {
             width: 100%;
@@ -136,7 +208,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.3s ease;
             margin-top: 0.5rem;
         }
 
@@ -155,12 +227,44 @@
             color: #64748b;
         }
 
-        .login-footer a { color: var(--mint-green); text-decoration: none; font-weight: 600; }
-        .login-footer a:hover { text-decoration: underline; }
+        .login-footer a {
+            color: var(--mint-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
 
         @media (max-width: 850px) {
-            .register-container { grid-template-columns: 1fr; max-width: 480px; }
-            .info-side { display: none; }
+            .register-container {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+            }
+
+            .info-side {
+                display: none;
+            }
+
+            .form-side {
+                padding: 2rem 1.5rem;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+
+            .register-container {
+                border-radius: 18px;
+            }
+
+            .form-header h2 {
+                font-size: 1.6rem;
+            }
         }
     </style>
 </head>
@@ -168,12 +272,15 @@
     <div class="register-container">
         <div class="info-side">
             <div class="info-side-content">
-                <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                <div class="logo-wrap">
+                    <img src="{% static 'library/images/muslimint_logo.png' %}" alt="Logo MuslimINT" class="logo-img">
+                </div>
+
                 <div class="brand-name">Maktaba'INT</div>
                 <p>Rejoignez la bibliothèque.</p>
-                
+
                 <div class="restriction-box">
-                    <strong style="color: var(--mint-green); display: block; margin-bottom: 0.3rem;">⚠️ Attention</strong>
+                    <strong class="restriction-title">⚠️ Attention</strong>
                     L'inscription est réservée aux mails :<br>
                     • <strong>@telecom-sudparis.eu</strong><br>
                     • <strong>@imt-bs.eu</strong>
@@ -189,17 +296,21 @@
 
             <form method="post" novalidate>
                 {% csrf_token %}
-                
+
                 {% for field in form %}
                 <div class="form-group">
                     <label>{{ field.label }}</label>
                     {{ field }}
+
                     {% if field.help_text %}
                         <span class="help-text">{{ field.help_text }}</span>
                     {% endif %}
+
                     {% if field.errors %}
                         <ul class="error-list">
-                            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
                         </ul>
                     {% endif %}
                 </div>

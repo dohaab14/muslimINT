@@ -40,18 +40,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Application definition
-
 INSTALLED_APPS = [
+    'cloudinary_storage',     
+    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
-    'django.contrib.staticfiles',
     'cloudinary',
     'library',
     'users',
+]
+
+STATICFILES_DIRS = [
+    BASE_DIR / "library" / "static",
 ]
 
 CLOUDINARY_STORAGE = {

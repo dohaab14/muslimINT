@@ -110,6 +110,10 @@ class BookListView(ListView):
         if author:
             queryset = queryset.filter(author__icontains=author)
 
+        edition = self.request.GET.get('edition', '').strip()
+        if edition:
+            queryset = queryset.filter(edition__iexact=edition)
+
         availability = self.request.GET.get('availability', '')
         if availability == 'available':
             queryset = queryset.filter(available_copies__gt=0)
@@ -134,12 +138,17 @@ class BookListView(ListView):
         context = super().get_context_data(**kwargs)
 
         context['categories'] = Category.objects.all().order_by('name')
+
         context['all_authors'] = Book.objects.values_list('author', flat=True).distinct().order_by('author')
         context['all_authors'] = [author for author in context['all_authors'] if author]
+
+        context['all_editions'] = Book.objects.values_list('edition', flat=True).distinct().order_by('edition')
+        context['all_editions'] = [edition for edition in context['all_editions'] if edition]
 
         context['search_query'] = self.request.GET.get('q', '')
         context['selected_category'] = self.request.GET.get('category', '')
         context['selected_author'] = self.request.GET.get('author', '')
+        context['selected_edition'] = self.request.GET.get('edition', '')
         context['selected_availability'] = self.request.GET.get('availability', '')
         context['selected_sort'] = self.request.GET.get('sort', 'title')
 
@@ -148,7 +157,6 @@ class BookListView(ListView):
         context['can_manage_books'] = is_manager(self.request.user)
 
         return context
-
 
 class BookDetailView(DetailView):
     model = Book

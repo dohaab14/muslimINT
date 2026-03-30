@@ -2,62 +2,63 @@
 {% load static %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 2rem auto; padding: 1rem; animation: fadeIn 0.5s ease-in-out;">
-    <a href="{% url 'library:book_list' %}" style="color: var(--mint-green); text-decoration: none; font-weight: 600;">← Retour au catalogue</a>
+<div class="book-detail-wrapper">
+    <a href="{% url 'library:book_list' %}" class="back-link">← Retour au catalogue</a>
 
-    <div style="display: flex; gap: 2.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
-        <div style="flex: 0 0 300px; max-width: 100%;">
+    <div class="book-detail-layout">
+        <div class="book-cover-col">
             {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" alt="Couverture de {{ book.title }}" 
-                     style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <div class="book-cover-frame">
+                    <img src="{{ book.cover_image.url }}" alt="Couverture de {{ book.title }}" class="book-cover-img">
+                </div>
             {% else %}
-                <div style="width: 100%; height: 400px; background: #f3f4f6; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af; border: 2px dashed #d1d5db;">
-                    <span style="font-size: 3rem; margin-bottom: 1rem;">📚</span>
+                <div class="book-cover-placeholder">
+                    <span class="book-cover-icon">📚</span>
                     <p>Aucune couverture disponible</p>
                 </div>
             {% endif %}
         </div>
 
-        <div style="flex: 1; min-width: 250px;">
-            <h1 style="margin: 0 0 0.5rem; color: var(--deep-blue);">{{ book.title }}</h1>
-            <p style="font-size: 1.2rem; color: #555; margin-bottom: 1.5rem;">
+        <div class="book-info-col">
+            <h1 class="book-title">{{ book.title }}</h1>
+            <p class="book-author">
                 <strong>Auteur :</strong> {{ book.author|default:"Non spécifié" }}
             </p>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; background: #fafafa; padding: 1rem; border-radius: 8px;">
+            <div class="book-meta-grid">
                 {% if book.category %}
                 <div>
-                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Catégorie</span>
-                    <span style="font-weight: 600;">📁 {{ book.category.name }}</span>
+                    <span class="meta-label">Catégorie</span>
+                    <span class="meta-value">📁 {{ book.category.name }}</span>
                 </div>
                 {% endif %}
 
                 {% if book.edition %}
                 <div>
-                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Édition</span>
-                    <span style="font-weight: 600;">🏢 {{ book.edition }}</span>
+                    <span class="meta-label">Édition</span>
+                    <span class="meta-value">🏢 {{ book.edition }}</span>
                 </div>
                 {% endif %}
 
                 {% if book.isbn %}
                 <div>
-                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">ISBN</span>
-                    <span style="font-weight: 500;"> {{ book.isbn }}</span>
+                    <span class="meta-label">ISBN</span>
+                    <span class="meta-value">{{ book.isbn }}</span>
                 </div>
                 {% endif %}
 
                 <div>
-                    <span style="display: block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Emprunts</span>
-                    <span style="font-weight: 500;">📊 {{ book.loans.count }} fois</span>
+                    <span class="meta-label">Emprunts</span>
+                    <span class="meta-value">📊 {{ book.loans.count }} fois</span>
                 </div>
             </div>
 
             {% if book.available_copies > 0 %}
-                <div style="background: #d4edda; color: #155724; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #28a745;">
+                <div class="availability-box available">
                     ✅ <strong>Disponible</strong> — {{ book.available_copies }} exemplaire{{ book.available_copies|pluralize }} sur {{ book.total_copies }}
                 </div>
             {% else %}
-                <div style="background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc3545;">
+                <div class="availability-box unavailable">
                     ❌ <strong>Indisponible</strong> — Tous les exemplaires sont empruntés
                 </div>
             {% endif %}
@@ -65,12 +66,12 @@
             {% if user.is_authenticated and book.available_copies > 0 %}
                 <form method="post" action="{% url 'library:borrow_book' book.slug %}">
                     {% csrf_token %}
-                    <button type="submit" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; width: 100%;">
+                    <button type="submit" class="primary-btn">
                         📚 Emprunter ce livre
                     </button>
                 </form>
             {% elif not user.is_authenticated %}
-                <a href="{% url 'library:login' %}" style="display: block; text-align: center; background: var(--deep-blue); color: white; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; margin-top: 1rem;">
+                <a href="{% url 'library:login' %}" class="login-btn">
                     🔐 Se connecter pour emprunter
                 </a>
             {% endif %}
@@ -78,39 +79,287 @@
     </div>
 
     {% if book.spiritual_review %}
-        <div style="margin-top: 2.5rem; background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid #b2f5ea; position: relative;">
-            <div style="display: inline-block; background: var(--mint-green); color: white; padding: 2px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">
+        <div class="spiritual-box">
+            <div class="spiritual-badge">
                 L'avis du Pôle Spiritualité 🕌
             </div>
-            <p style="font-style: italic; color: #2d3748; line-height: 1.6; font-size: 1.05rem; margin: 0;">
+            <p class="spiritual-text">
                 "{{ book.spiritual_review }}"
             </p>
         </div>
     {% endif %}
 
     {% if can_manage_books %}
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
-        <a href="{% url 'library:book_edit' book.slug %}" style="background: var(--deep-blue); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
+    <div class="admin-actions">
+        <a href="{% url 'library:book_edit' book.slug %}" class="edit-btn">
             ✏️ Modifier
         </a>
-        <a href="{% url 'library:book_delete' book.slug %}" style="background: #c62828; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
+        <a href="{% url 'library:book_delete' book.slug %}" class="delete-btn">
             🗑️ Supprimer
         </a>
     </div>
     {% endif %}
 
     {% if book.description %}
-        <div style="margin-top: 2rem; padding: 1.5rem; background: #fff; border-radius: 8px; border: 1px solid #eee;">
-            <h2 style="margin-top: 0; font-size: 1.3rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 0.5rem;">📝 Description</h2>
-            <p style="line-height: 1.6; color: #333;">{{ book.description|linebreaks }}</p>
+        <div class="description-box">
+            <h2 class="description-title">📝 Description</h2>
+            <div class="description-text">
+                {{ book.description|linebreaks }}
+            </div>
         </div>
     {% endif %}
 </div>
 
 <style>
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.book-detail-wrapper {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.back-link {
+    color: var(--mint-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.book-detail-layout {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+    align-items: flex-start;
+}
+
+.book-cover-col {
+    flex: 0 0 300px;
+    max-width: 300px;
+    width: 100%;
+}
+
+.book-cover-frame {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: #f8f8f8;
+}
+
+.book-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.book-cover-placeholder {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    border: 2px dashed #d1d5db;
+    text-align: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.book-cover-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.book-info-col {
+    flex: 1;
+    min-width: 250px;
+}
+
+.book-title {
+    margin: 0 0 0.5rem;
+    color: var(--deep-blue);
+}
+
+.book-author {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.book-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background: #fafafa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.meta-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.meta-value {
+    font-weight: 600;
+}
+
+.availability-box {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.available {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.primary-btn,
+.login-btn {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+.primary-btn {
+    background: var(--mint-green);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.login-btn {
+    background: var(--deep-blue);
+    color: white;
+}
+
+.spiritual-box {
+    margin-top: 2.5rem;
+    background: linear-gradient(135deg, #f0fdfa 0%, #e6fffa 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #b2f5ea;
+    position: relative;
+}
+
+.spiritual-badge {
+    display: inline-block;
+    background: var(--mint-green);
+    color: white;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.spiritual-text {
+    font-style: italic;
+    color: #2d3748;
+    line-height: 1.6;
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.edit-btn,
+.delete-btn {
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.edit-btn {
+    background: var(--deep-blue);
+}
+
+.delete-btn {
+    background: #c62828;
+}
+
+.description-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.description-title {
+    margin-top: 0;
+    font-size: 1.3rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+.description-text {
+    line-height: 1.6;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .book-detail-layout {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .book-cover-col {
+        flex: unset;
+        max-width: 100%;
+    }
+
+    .book-cover-frame,
+    .book-cover-placeholder {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
+    .book-info-col {
+        min-width: unset;
+    }
+
+    .book-title {
+        font-size: 1.6rem;
+    }
+
+    .book-author {
+        font-size: 1.05rem;
+    }
 }
 </style>
 {% endblock %}

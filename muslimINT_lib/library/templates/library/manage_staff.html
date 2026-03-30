@@ -1,106 +1,415 @@
 {% extends "library/base.html" %}
 {% block content %}
-<section style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+<section class="team-page">
+  <div class="team-header">
     <div>
-      <h2 style="color: var(--deep-blue); font-weight: 700;">👥 Gestion de l'Équipe</h2>
-      <p style="color: #64748b;">Gérez les accès administrateurs de Maktaba'Int</p>
+      <h2>👥 Gestion de l'Équipe</h2>
+      <p>Gérez les accès administrateurs de Maktaba'Int</p>
     </div>
-    <a href="{% url 'library:admin_dashboard' %}" class="btn btn-secondary" style="text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; background: #e2e8f0; color: #475569; font-weight: 600;">
+
+    <a href="{% url 'library:admin_dashboard' %}" class="back-btn">
       ← Tableau de bord
     </a>
   </div>
 
-  <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #f1f5f9;">
-    <h3 style="margin-bottom: 1.2rem; font-size: 1.1rem; color: var(--deep-blue);">➕ Ajouter un nouveau membre</h3>
-    <form method="post" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+  <div class="card">
+    <h3>➕ Ajouter un nouveau membre</h3>
+
+    <form method="post" class="member-form">
       {% csrf_token %}
       <input type="hidden" name="add_member" value="1">
-      
-      <div style="flex: 1; min-width: 280px;">
-        <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: #475569;">Adresse e-mail institutionnelle</label>
-        <input type="email" name="email" id="email" required placeholder="nom.prenom@telecom-sudparis.eu"
-               style="width: 100%; padding: 0.75rem; border: 2px solid #f1f5f9; background: #f8fafc; border-radius: 10px; font-size: 0.95rem; transition: 0.2s;">
+
+      <div class="form-group form-grow">
+        <label for="email">Adresse e-mail institutionnelle</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          required
+          placeholder="nom.prenom@telecom-sudparis.eu"
+        >
       </div>
 
-      <div style="display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.8rem;">
-        <input type="checkbox" name="make_staff" id="make_staff" style="width: 20px; height: 20px; accent-color: var(--mint-green);">
-        <label for="make_staff" style="font-size: 0.9rem; font-weight: 500; color: #475569; cursor: pointer;">Nommer gestionnaire</label>
+      <div class="checkbox-group">
+        <input type="checkbox" name="make_staff" id="make_staff">
+        <label for="make_staff">Nommer gestionnaire</label>
       </div>
 
-      <button type="submit" class="btn" style="background: var(--mint-green); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s;">
-        Ajouter le membre
-      </button>
+      <button type="submit" class="primary-btn">Ajouter le membre</button>
     </form>
   </div>
 
-  <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #f1f5f9;">
-    <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-      <thead>
-        <tr style="background: var(--deep-blue); color: white;">
-          <th style="padding: 1.2rem 1rem; text-align: left; font-weight: 600;">Utilisateur</th>
-          <th style="padding: 1.2rem 1rem; text-align: left; font-weight: 600;">E-mail</th>
-          <th style="padding: 1.2rem 1rem; text-align: center; font-weight: 600;">Statut</th>
-          <th style="padding: 1.2rem 1rem; text-align: center; font-weight: 600;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for u in all_users %}
-          <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s; {% if u.is_superuser %}background: #fffbeb;{% endif %}">
-            <td style="padding: 1rem;">
-              <div style="font-weight: 600; color: var(--deep-blue);">{{ u.username }}</div>
-              {% if u.get_full_name %}
-                <div style="font-size: 0.8rem; color: #94a3b8;">{{ u.get_full_name }}</div>
-              {% endif %}
-            </td>
-            
-            <td style="padding: 1rem; color: #64748b; font-size: 0.9rem;">
-              {{ u.email|default:"—" }}
-            </td>
-
-            <td style="padding: 1rem; text-align: center;">
-              {% if u.is_superuser %}
-                <span style="background: #fef3c7; color: #92400e; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">👑 Super Admin</span>
-              {% elif u.is_staff %}
-                <span style="background: #dcfce7; color: #166534; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">✅ Staff</span>
-              {% else %}
-                <span style="background: #f1f5f9; color: #475569; padding: 0.3rem 0.7rem; border-radius: 8px; font-weight: 600; font-size: 0.75rem;">MEMBRE</span>
-              {% endif %}
-            </td>
-
-            <td style="padding: 1rem; text-align: center;">
-              <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
-                {% if u.is_superuser %}
-                  <span style="color: #cbd5e1; font-size: 0.8rem;">Non modifiable</span>
-                {% elif u == request.user %}
-                  <span style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">(Vous)</span>
-                {% else %}
-                  <form method="post" action="{% url 'library:toggle_staff' u.id %}" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" 
-                            style="background: {% if u.is_staff %}#64748b{% else %}var(--mint-green){% endif %}; color: white; border: none; padding: 0.45rem 0.8rem; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: 0.2s;"
-                            onclick="return confirm('Changer le rôle de {{ u.username }} ?')">
-                      {% if u.is_staff %}Rétrograder{% else %}Promouvoir{% endif %}
-                    </button>
-                  </form>
-
-                  <a href="{% url 'library:delete_user' u.id %}" 
-                     style="background: #fee2e2; color: #ef4444; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; transition: 0.2s;"
-                     onclick="return confirm('🚨 Action irréversible !\nVoulez-vous vraiment supprimer définitivement le compte de {{ u.username }} ?')">
-                    🗑️
-                  </a>
-                {% endif %}
-              </div>
-            </td>
+  <div class="card table-card">
+    <div class="table-wrapper">
+      <table class="team-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>E-mail</th>
+            <th>Statut</th>
+            <th>Actions</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for u in all_users %}
+            <tr class="{% if u.is_superuser %}super-row{% endif %}">
+              <td>
+                <div class="user-name">{{ u.username }}</div>
+                {% if u.get_full_name %}
+                  <div class="user-fullname">{{ u.get_full_name }}</div>
+                {% endif %}
+              </td>
+
+              <td class="user-email">
+                {{ u.email|default:"—" }}
+              </td>
+
+              <td class="center-cell">
+                {% if u.is_superuser %}
+                  <span class="badge badge-super">👑 Super Admin</span>
+                {% elif u.is_staff %}
+                  <span class="badge badge-staff">✅ Staff</span>
+                {% else %}
+                  <span class="badge badge-member">Membre</span>
+                {% endif %}
+              </td>
+
+              <td class="center-cell">
+                <div class="actions-wrap">
+                  {% if u.is_superuser %}
+                    <span class="muted-text">Non modifiable</span>
+                  {% elif u == request.user %}
+                    <span class="muted-text">(Vous)</span>
+                  {% else %}
+                    <form method="post" action="{% url 'library:toggle_staff' u.id %}" class="inline-form">
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="role-btn {% if u.is_staff %}btn-demote{% else %}btn-promote{% endif %}"
+                        onclick="return confirm('Changer le rôle de {{ u.username }} ?')"
+                      >
+                        {% if u.is_staff %}Rétrograder{% else %}Promouvoir{% endif %}
+                      </button>
+                    </form>
+
+                    <a
+                      href="{% url 'library:delete_user' u.id %}"
+                      class="delete-btn"
+                      onclick="return confirm('🚨 Action irréversible !\nVoulez-vous vraiment supprimer définitivement le compte de {{ u.username }} ?')"
+                    >
+                      🗑️
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.8rem; padding: 1rem; background: #eff6ff; border-radius: 12px; color: #1e40af; font-size: 0.85rem; border: 1px solid #dbeafe;">
+  <div class="info-box">
     <span>ℹ️</span>
     <p>Seuls les <strong>Super Admins</strong> peuvent gérer l'équipe. La suppression d'un utilisateur retire tous ses accès et son historique d'emprunt.</p>
   </div>
 </section>
+
+<style>
+.team-page {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.team-header h2 {
+  color: var(--deep-blue);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.team-header p {
+  color: #64748b;
+}
+
+.back-btn {
+  text-decoration: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  background: #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #f1f5f9;
+}
+
+.card h3 {
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+  color: var(--deep-blue);
+}
+
+.member-form {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-group {
+  min-width: 260px;
+}
+
+.form-grow {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.form-group input[type="email"] {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 2px solid #f1f5f9;
+  background: #f8fafc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input[type="email"]:focus {
+  outline: none;
+  border-color: var(--mint-green);
+  background: white;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 0.8rem;
+}
+
+.checkbox-group input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--mint-green);
+}
+
+.checkbox-group label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: var(--mint-green);
+  color: white;
+  border: none;
+  padding: 0.82rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.team-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.team-table thead tr {
+  background: var(--deep-blue);
+  color: white;
+}
+
+.team-table th {
+  padding: 1.2rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.team-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.super-row {
+  background: #fffbeb;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--deep-blue);
+}
+
+.user-fullname {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+.user-email {
+  color: #64748b;
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+.center-cell {
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.badge-super {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-staff {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-member {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.actions-wrap {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.role-btn {
+  color: white;
+  border: none;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.btn-promote {
+  background: var(--mint-green);
+}
+
+.btn-demote {
+  background: #64748b;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #ef4444;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.muted-text {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.info-box {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #eff6ff;
+  border-radius: 12px;
+  color: #1e40af;
+  font-size: 0.9rem;
+  border: 1px solid #dbeafe;
+}
+
+.info-box p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .team-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .back-btn {
+    width: fit-content;
+  }
+
+  .member-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-group,
+  .form-grow {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .checkbox-group {
+    padding-bottom: 0;
+  }
+
+  .primary-btn {
+    width: 100%;
+  }
+}
+</style>
 {% endblock %}

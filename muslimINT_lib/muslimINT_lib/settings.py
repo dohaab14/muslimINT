@@ -12,10 +12,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url #pour la config de BDD en prod
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Charger les variables d'environnement depuis .env
 env_path = BASE_DIR / '.env'
@@ -27,62 +29,34 @@ if env_path.exists():
                 key, value = line.split('=', 1)
                 os.environ.setdefault(key.strip(), value.strip())
 
-# SECURITY: SECRET_KEY chargée depuis .env
+
+# SECURITY
 SECRET_KEY = os.environ.get('SECRET_KEY', 'changez-moi-en-production')
-
-# SECURITY: DEBUG depuis .env (False par défaut en production)
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
-
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Application definition
 INSTALLED_APPS = [
-    'cloudinary_storage',     
-    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
+
     'cloudinary',
+    'cloudinary_storage',
+
     'library',
     'users',
 ]
 
-STATICFILES_DIRS = [
-    BASE_DIR / "library" / "static",
-]
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
-}
-
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        # On passe au backend de base qui ne fait pas de post-processing complexe
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
-    },
-}
-
-# 2. Compatibilité (Lignes à garder pour Cloudinary sur Render)
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# 3. Paramètre WhiteNoise à ajouter (pour éviter les erreurs de fichiers manquants)
-WHITENOISE_MANIFEST_STRICT = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -91,7 +65,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'muslimINT_lib.urls'
+
 
 TEMPLATES = [
     {
@@ -108,22 +84,11 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'muslimINT_lib.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-"""
-#HPROD
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-"""
-
-#PROD configuration BDD avec dj_database_url pour Heroku
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
@@ -132,8 +97,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -151,38 +114,58 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'fr-fr'
-
 TIME_ZONE = 'Europe/Paris'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'library' / 'static',
+]
 
-# Media files (uploaded images)
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Cloudinary (media uploads)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+# Django 5+ storage config
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Évite les crashs si un ancien fichier statique référencé n'existe plus
+WHITENOISE_MANIFEST_STRICT = False
+
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Email backend
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_BACKEND = os.environ.get(
+        'EMAIL_BACKEND',
+        'django.core.mail.backends.smtp.EmailBackend'
+    )
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
     EMAIL_USE_TLS = True
@@ -190,8 +173,10 @@ else:
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@muslimint.fr')
 
+
 # Redirection après login/logout
 LOGIN_URL = '/login/'
+
 
 # ===== SÉCURITÉ =====
 
@@ -205,24 +190,24 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 semaine
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get(
-    'CSRF_TRUSTED_ORIGINS',
-    ''
-).split(',') if o.strip()]
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if o.strip()
+]
 
 # Sécurité HTTPS automatique en production
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-
-if DEBUG:
+else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False

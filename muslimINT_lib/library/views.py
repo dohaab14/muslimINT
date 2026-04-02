@@ -12,8 +12,7 @@ from django.views.generic import ListView, DetailView
 
 from .forms import BookForm, RegistrationForm
 from .models import Book, Loan, BorrowerProfile, Category, Author
-from library.email_service import send_brevo_email
-
+from django.core.mail import send_mail
 
 def is_manager(user):
     return user.is_authenticated and (
@@ -218,12 +217,14 @@ def borrow_book(request, slug):
         request,
         f'Vous avez emprunté "{book.title}" avec succès ! À rendre avant le {due_date.strftime("%d/%m/%Y")}.'
     )
-    send_brevo_email(
-    to_email=request.user.email,
-    subject="Test email Maktaba",
-    html_content="<p>Ton email fonctionne 🎉</p>"
-)
-
+    if request.user.email:
+        send_mail(
+            subject="Test email Maktaba",
+            message="Ton email fonctionne.",
+            from_email=None,
+            recipient_list=[request.user.email],
+            fail_silently=False,
+        )
     return render(request, 'library/borrow_confirm.html', {
         'book': book,
         'loan': loan

@@ -264,3 +264,13 @@ LOGGING = {
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "doha.aberkane@telecom-sudparis.eu")
 APP_NAME = "Maktaba'Int"
+
+import os
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = f"Maktaba'Int <{EMAIL_HOST_USER}>"

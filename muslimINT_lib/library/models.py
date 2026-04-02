@@ -174,7 +174,7 @@ class Loan(models.Model):
     borrowed_at = models.DateTimeField(default=timezone.now, verbose_name="Date d'emprunt")
     due_date = models.DateTimeField(verbose_name="Date limite de retour")
     returned_at = models.DateTimeField(null=True, blank=True, verbose_name="Date de retour")
-    
+     
     # Statut
     status = models.CharField(
         max_length=20, 
@@ -185,7 +185,9 @@ class Loan(models.Model):
     
     # Notes (optionnel pour Phase 2)
     notes = models.TextField(blank=True, help_text="Notes ou remarques sur l'emprunt")
-    
+    reminder_sent = models.BooleanField(default=False)
+    overdue_email_sent = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-borrowed_at']
         verbose_name = "Emprunt"

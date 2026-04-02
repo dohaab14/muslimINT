@@ -13,6 +13,7 @@ packaging==26.0
 pillow==12.1.1
 psycopg2-binary==2.9.11
 requests==2.33.0
+sib-api-v3-sdk==7.6.0
 six==1.17.0
 sqlparse==0.5.5
 urllib3==2.6.3

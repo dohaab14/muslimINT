@@ -160,6 +160,11 @@
             text-align: center;
         }
 
+        .message-box.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
         .form-group {
             margin-bottom: 1.2rem;
         }
@@ -332,7 +337,7 @@
 
             {% if messages %}
                 {% for message in messages %}
-                    <div class="message-box">
+                    <div class="message-box {{ message.tags }}">
                         {{ message }}
                     </div>
                 {% endfor %}

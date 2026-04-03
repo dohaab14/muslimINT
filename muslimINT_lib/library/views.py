@@ -192,6 +192,16 @@ def borrow_book(request, slug):
         messages.error(request, f'Le livre "{book.title}" n\'est pas disponible pour le moment.')
         return redirect('library:book_list')
 
+    # Limite de 3 emprunts simultanés
+    active_loans_count = Loan.objects.filter(
+        borrower=request.user,
+        status='ongoing'
+    ).count()
+
+    if active_loans_count >= 3:
+        messages.error(request, 'Vous avez déjà 3 emprunts en cours. Rendez un livre avant d\'en emprunter un nouveau.')
+        return redirect('library:my_loans')
+
     existing_loan = Loan.objects.filter(
         borrower=request.user,
         book=book,
@@ -202,7 +212,7 @@ def borrow_book(request, slug):
         messages.warning(request, f'Vous avez déjà emprunté le livre "{book.title}".')
         return redirect('library:my_loans')
 
-    due_date = timezone.now() + timedelta(days=14)
+    due_date = timezone.now() + timedelta(days=30)
     loan = Loan.objects.create(
         book=book,
         borrower=request.user,
@@ -393,7 +403,17 @@ def admin_extend_loan(request, loan_id):
         days = 7
 
     if loan.status in ['ongoing', 'overdue']:
-        loan.due_date = loan.due_date + timedelta(days=days)
+        max_due_date = loan.borrowed_at + timedelta(days=30)
+        new_due_date = loan.due_date + timedelta(days=days)
+
+        if new_due_date > max_due_date:
+            messages.warning(
+                request,
+                f'Impossible de prolonger au-delà d\'1 mois après l\'emprunt ({max_due_date.strftime("%d/%m/%Y")}).'
+            )
+            return redirect('library:admin_loans')
+
+        loan.due_date = new_due_date
         loan.status = 'ongoing' if loan.due_date >= timezone.now() else 'overdue'
         loan.save()
         messages.success(

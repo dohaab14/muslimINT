@@ -1,6 +1,6 @@
-# muslimINT
+# muslimINT library
 
-## MuslimINT website
+## MuslimINT library website
 
 A website to borrow, add and check books from the association MuslimInt.
 A follow-up of whom borrowed which book and give alerts if the time to give the book is not that far.

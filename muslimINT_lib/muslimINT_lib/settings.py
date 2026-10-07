@@ -262,7 +262,7 @@ LOGGING = {
 
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "doha.aberkane@telecom-sudparis.eu")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "blbala@telecom-sudparis.eu")
 APP_NAME = "Maktaba'Int"
 
 import os
